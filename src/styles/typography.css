@@ -5,6 +5,7 @@
   letter-spacing: 0.035em;
   text-wrap: balance;
   margin: 0;
+  -webkit-text-stroke-width: 1.5px;
 
   .ligature {
     font-variant-ligatures: discretionary-ligatures;
