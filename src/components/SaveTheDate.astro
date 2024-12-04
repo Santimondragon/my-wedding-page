@@ -1,0 +1,54 @@
+<section class="save-the-date">
+  <h1 class="heading heading--1 animate">RESERVA <span class="ligature">LA FECHA</span></h1>
+  <div class="save-the-date__content">
+    <div>
+      <h3 class="heading heading--3 animate">10.10.2025</h3>
+      <p class="text animate">Medellín, Colombia</p>
+    </div>
+    <p class="text text--italic animate">Para la boda de</p>
+    <p class="text text--large animate">AURA MARIA ARIAS <br /> & <br />SANTIAGO MONDRAÓN</p>
+  </div>
+  <p class="text text--italic animate">Invitación formal a seguir</p>
+</section>
+
+<style>
+  .save-the-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    text-align: center;
+    height: 100%;
+
+    .animate {
+      opacity: 0;
+      animation: fadeInUp 1s ease forwards;
+      animation-delay: var(--delay, 0s);
+    }
+  }
+
+  .save-the-date__content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.4rem, 5vh, 6.4rem);
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(3.2rem);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script>
+  const animatableElements = document.querySelectorAll('.save-the-date .animate');
+
+  animatableElements.forEach((el, index) => {
+    (el as HTMLElement).style.setProperty('--delay', `${index * 0.1}s`);
+  });
+</script>
