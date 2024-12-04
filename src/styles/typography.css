@@ -24,7 +24,7 @@
 
   /* H3 */
   &.heading--3 {
-    font-size: clamp(4.2rem, 5vw, 8rem); /* 28px to 49px */
+    font-size: clamp(4.6rem, 5vw, 8rem); /* 28px to 49px */
   }
 
   /* H4 */
@@ -60,7 +60,7 @@
 
 /* Large text modifier */
 .text--large {
-  font-size: clamp(2rem, 1.5vw, 3.2rem); /* 20px to 32px */
+  font-size: clamp(2.4rem, 1.5vw, 3.2rem); /* 20px to 32px */
 }
 
 /* Small text modifier */
