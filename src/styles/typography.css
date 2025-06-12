@@ -60,6 +60,11 @@
 }
 
 /* Large text modifier */
+.text--xl {
+  font-size: clamp(3.2rem, 1.5vw, 4.2rem); /* 32px to 42px */
+}
+
+/* Large text modifier */
 .text--large {
   font-size: clamp(2.4rem, 1.5vw, 3.2rem); /* 20px to 32px */
 }

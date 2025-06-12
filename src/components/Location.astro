@@ -1,0 +1,75 @@
+---
+import Button from './Button.astro';
+import SectionOverlay from './SectionOverlay.astro';
+---
+
+<section class="location">
+  <SectionOverlay position="bottom" />
+  <div class="location__image">
+    <img src="/images/location.jpg" alt="location Image" />
+  </div>
+  <div class="location__content">
+    <h3 class="heading heading--3">Ubicación</h3>
+    <p class="location__text text text--xl text--italic">Ceremonia y recepción</p>
+    <p class="location__text text">Cr 19, Loma Del Escobero #36c Sur - 259 <br> Envigado, Antioquia</p>
+    <Button text="Ver Ubicación" href="https://g.co/kgs/orJ43GH" />
+  </div>
+</section>
+
+<style>
+  .location {
+    position: relative;
+    width: 100vw;
+    height: 75vh;
+  }
+
+  .location__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    width: 100%;
+    height: 100%;
+    padding: 4.8rem 2.4rem;
+
+    .location__text,
+    .heading {
+      text-align: center;
+      color: var(--white);
+    }
+
+    .heading {
+      margin-bottom: 1.6rem;
+    }
+
+    .location__text {
+      text-wrap: balance;
+      text-wrap: pretty;
+    }
+
+    .button {
+      margin-top: 2.4rem;
+    }
+  }
+
+  .location__image {
+    z-index: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    img {
+      width: auto;
+      height: 100%;
+      max-width: 115%;
+      min-width: 100%
+      object-fit: cover;
+    }
+  }
+</style>

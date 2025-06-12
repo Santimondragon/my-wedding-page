@@ -44,11 +44,10 @@
     }
   }
 </style>
-
-<script>
+<script is:inline>
   const animatableElements = document.querySelectorAll('.save-the-date .animate');
 
   animatableElements.forEach((el, index) => {
-    (el as HTMLElement).style.setProperty('--delay', `${index * 0.1}s`);
+    el.style.setProperty('--delay', `${index * 0.1}s`);
   });
 </script>

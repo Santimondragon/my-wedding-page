@@ -1,0 +1,36 @@
+<header class="header">
+  <div class="header__date">
+    <span class="heading heading--3">10</span>
+    <span class="heading heading--3">10</span>
+    <span class="heading heading--3">25</span>
+  </div>
+  <p class="header__title text text--xl text--italic">¡Nos casamos!</p>
+</header>
+
+<style>
+  .header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4.8rem;
+    width: 100%;
+    padding: 3.2rem 2.4rem;
+  }
+
+  .header__date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+
+    .heading {
+      line-height: 0.6em;
+
+      &:nth-child(2) {
+        position: relative;
+        left: 1.6rem;
+      }
+    }
+  }
+</style>

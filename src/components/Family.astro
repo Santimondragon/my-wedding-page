@@ -1,0 +1,69 @@
+---
+import SectionOverlay from './SectionOverlay.astro';
+---
+
+<section class="family">
+  <SectionOverlay position="top" />
+  <div class="family__image">
+    <img src="/images/family.jpg" alt="family Image" />
+  </div>
+  <div class="family__content">
+    <h3 class="heading heading--3">Familia Mondragón</h3>
+    <p class="text text--italic">
+      Junto a nuestros queridos padres,
+      Harold Mondragón y Olga Patricia Medina
+      & Fabio Arias y Nelly Parra, hemos decidido dar este
+      gran paso y unir nuestras vidas en matrimonio.
+      Este día será aún más especial al celebrarlo con ustedes.
+    </p>
+  </div>
+</section>
+
+<style>
+  .family {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .family__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    padding: 4.8rem 2.4rem;
+
+    .text,
+    .heading {
+      color: var(--white);
+    }
+
+    .text {
+      text-align: right;
+      text-wrap: balance;
+      text-wrap: pretty;
+    }
+  }
+
+  .family__image {
+    z-index: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    img {
+      width: auto;
+      height: 100%;
+      max-width: 115%;
+      min-width: 100%
+      object-fit: cover;
+    }
+  }
+</style>
