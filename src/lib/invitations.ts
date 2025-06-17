@@ -1,10 +1,12 @@
-import { supabase } from './supabase';
+import { getSupabase } from '../lib/supabase';
 import type { Database } from './database.types';
 
 type Guest = Database['public']['Tables']['guests']['Row'];
 type Invitation = Database['public']['Tables']['invitations']['Row'] & {
   guests: Guest[];
 };
+
+const supabase = getSupabase();
 
 export async function getInvitation(invitationId: string): Promise<Invitation | null> {
   const { data: invitation, error: invitationError } = await supabase

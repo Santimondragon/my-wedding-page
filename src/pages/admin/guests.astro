@@ -1,7 +1,8 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { supabase } from '../../lib/supabase';
+import { getSupabase } from '../../lib/supabase';
 
+const supabase = getSupabase();
 // Fetch all guests with their invitation details
 const { data: guests } = await supabase
   .from('guests')
@@ -218,8 +219,9 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
 </style>
 
 <script>
-  import { supabase } from '../../lib/supabase';
+  import { getSupabase } from '../../lib/supabase';
 
+  const supabase = getSupabase();
   // Delete guest
   document.querySelectorAll('.delete-guest').forEach((button) => {
     button.addEventListener('click', async (e) => {

@@ -1,7 +1,8 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { supabase } from '../lib/supabase';
+import { getSupabase } from '../lib/supabase';
 import Button from '../components/Button.astro';
+
+const supabase = getSupabase();
 
 interface Guest {
   id: string;
@@ -197,7 +198,6 @@ const guests = invitation.guests?.sort((a, b) => a.name.localeCompare(b.name)) |
 
 <script>
   import { updateGuestRSVP } from '../lib/invitations';
-  import { supabase } from '../lib/supabase';
 
   const form = document.getElementById('rsvp-form');
   const formStatus = document.getElementById('form-status');

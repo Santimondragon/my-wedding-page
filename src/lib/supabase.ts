@@ -1,19 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+export const getSupabase = () => {
+  if (supabaseInstance) {
+    return supabaseInstance;
+  }
 
-// Extract project reference from Supabase URL
-const projectRef = supabaseUrl.match(/(?:\/\/|\.)(.*?)\.supabase/)?.[1] || '';
-// Cookie name that Supabase uses, including project reference
-const SUPABASE_COOKIE_NAME = `sb-${projectRef}-auth-token`;
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
-export const supabase = createClient<Database>(
-  supabaseUrl, 
-  supabaseAnonKey
-); 
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables');
+  }
+
+  supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  return supabaseInstance;
+};

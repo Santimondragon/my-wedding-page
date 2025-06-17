@@ -1,7 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { checkAuth } from '../../middleware/auth';
-import { supabase } from '../../lib/supabase';
+import { getSupabase } from '../../lib/supabase';
 import Button from '../../components/Button.astro';
 
 const { isAuthorized } = await checkAuth(Astro);
@@ -10,6 +10,7 @@ if (!isAuthorized) {
   return Astro.redirect('/login');
 }
 
+const supabase = getSupabase();
 // Get all invitations with their guests
 const { data: invitations } = await supabase
   .from('invitations')
