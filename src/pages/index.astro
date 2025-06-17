@@ -1,28 +1,89 @@
 ---
 import '../styles/index.css';
-
-import Header from '../components/Header.astro';
-import Hero from '../components/Hero.astro';
-import Celebrate from '../components/Celebrate.astro';
-import Family from '../components/Family.astro';
-import RSVP from '../components/RSVP.astro';
-import Location from '../components/Location.astro';
 ---
 
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Welcome</title>
+
+    <!-- Twitter -->
+    <meta name="twitter:title" content="Reserva la Fecha" />
+    <meta name="twitter:description" content="10.10.2025 - Medellín, Colombia" />
+    <meta
+      name="twitter:image"
+      content="https://santimondragon.github.io/my-wedding-page/preview.jpg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Facebook -->
+    <meta property="og:title" content="Reserva la Fecha" />
+    <meta property="og:description" content="10.10.2025 - Medellín, Colombia" />
+    <meta
+      property="og:image"
+      content="https://santimondragon.github.io/my-wedding-page/preview.jpg"
+    />
+
+    <!-- Common -->
+    <link rel="icon" type="image/svg+x" href="./favicon.svg" />
+    <title>Reserva La Fecha</title>
   </head>
   <body>
     <main>
-      <Header />
-      <Hero />
-      <Celebrate />
-      <Family />
-      <RSVP />
-      <Location />
+      <section class="save-the-date">
+        <h1 class="heading heading--1 animate">RESERVA <span class="ligature">LA FECHA</span></h1>
+        <div class="save-the-date__content">
+          <div>
+            <h3 class="heading heading--3 animate">10.10.2025</h3>
+            <p class="text animate">Medellín, Colombia</p>
+          </div>
+          <p class="text text--italic animate">Para la boda de</p>
+          <p class="text text--large animate">AURA MARIA ARIAS <br /> & <br />SANTIAGO MONDRAGÓN</p>
+        </div>
+        <p class="text text--italic animate">Muy pronto te compartiremos más detalles</p>
+      </section>
     </main>
   </body>
 </html>
+
+<style>
+  .save-the-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    text-align: center;
+    height: 100%;
+
+    .animate {
+      opacity: 0;
+      animation: fadeInUp 1s ease forwards;
+      animation-delay: var(--delay, 0s);
+    }
+  }
+
+  .save-the-date__content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.4rem, 5vh, 6.4rem);
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(3.2rem);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script is:inline>
+  const animatableElements = document.querySelectorAll('.save-the-date .animate');
+
+  animatableElements.forEach((el, index) => {
+    el.style.setProperty('--delay', `${index * 0.1}s`);
+  });
+</script>

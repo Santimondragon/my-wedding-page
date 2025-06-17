@@ -1,0 +1,129 @@
+---
+import { checkAuth } from '../middleware/auth';
+
+// Check if user is authenticated
+const { isAuthorized } = await checkAuth(Astro);
+
+if (!isAuthorized) {
+  return Astro.redirect('/login');
+}
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Admin Dashboard - Aura y Santi' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="admin-layout">
+      <nav class="sidebar">
+        <div class="logo">
+          <h1 class="heading heading--3">Admin Dashboard</h1>
+        </div>
+        <ul class="nav-links">
+          <li>
+            <a href="/admin" class={Astro.url.pathname === '/admin' ? 'active' : ''}> Dashboard </a>
+          </li>
+          <li>
+            <a
+              href="/admin/invitations"
+              class={Astro.url.pathname === '/admin/invitations' ? 'active' : ''}
+            >
+              Invitations
+            </a>
+          </li>
+          <li>
+            <a href="/admin/guests" class={Astro.url.pathname === '/admin/guests' ? 'active' : ''}>
+              Guests
+            </a>
+          </li>
+          <li>
+            <button id="logout-button">Logout</button>
+          </li>
+        </ul>
+      </nav>
+      <main class="content">
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>
+
+<style>
+  .admin-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    background-color: var(--black);
+    color: var(--white);
+    padding: 2rem;
+
+    .logo {
+      margin-bottom: 3rem;
+
+      h1 {
+        color: var(--white);
+      }
+    }
+
+    .nav-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        margin: 1rem 0;
+
+        a,
+        button {
+          color: var(--white);
+          text-decoration: none;
+          font-size: 1.6rem;
+          padding: 1rem;
+          display: block;
+          border-radius: 0.4rem;
+          transition: background-color 0.2s;
+          width: 100%;
+          text-align: left;
+          background: none;
+          border: none;
+          cursor: pointer;
+
+          &:hover,
+          &.active {
+            background-color: rgba(255, 255, 255, 0.1);
+          }
+        }
+      }
+    }
+  }
+
+  .content {
+    padding: 2rem;
+    background-color: var(--white);
+  }
+</style>
+
+<script>
+  const AUTH_COOKIE = 'admin-auth';
+
+  const logoutButton = document.getElementById('logout-button');
+
+  logoutButton?.addEventListener('click', () => {
+    // Delete the auth cookie
+    document.cookie = `${AUTH_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    window.location.href = '/login';
+  });
+</script>

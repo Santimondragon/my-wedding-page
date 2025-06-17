@@ -1,0 +1,247 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { supabase } from '../../lib/supabase';
+
+// Fetch all guests with their invitation details
+const { data: guests } = await supabase
+  .from('guests')
+  .select(
+    `
+    id,
+    name,
+    rsvp,
+    menu,
+    is_special_guest,
+    invitation_id,
+    created_at
+  `
+  )
+  .order('created_at', { ascending: false });
+
+// Calculate statistics
+const totalGuests = guests?.length || 0;
+const confirmedGuests = guests?.filter((g) => g.rsvp === true).length || 0;
+const pendingGuests = guests?.filter((g) => g.rsvp === null).length || 0;
+const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
+---
+
+<AdminLayout>
+  <div class="guests">
+    <h2 class="heading heading--2">Guest List</h2>
+
+    <div class="stats">
+      <div class="stat-card">
+        <h3 class="heading heading--4">Total</h3>
+        <p class="stat">{totalGuests}</p>
+      </div>
+      <div class="stat-card">
+        <h3 class="heading heading--4">Confirmed</h3>
+        <p class="stat">{confirmedGuests}</p>
+      </div>
+      <div class="stat-card">
+        <h3 class="heading heading--4">Pending</h3>
+        <p class="stat">{pendingGuests}</p>
+      </div>
+      <div class="stat-card">
+        <h3 class="heading heading--4">Declined</h3>
+        <p class="stat">{declinedGuests}</p>
+      </div>
+    </div>
+
+    <div class="guests-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Menu Choice</th>
+            <th>Special Guest</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            guests?.map((guest) => (
+              <tr>
+                <td>{guest.name}</td>
+                <td>
+                  <span
+                    class={`status ${
+                      guest.rsvp === true
+                        ? 'confirmed'
+                        : guest.rsvp === false
+                          ? 'declined'
+                          : 'pending'
+                    }`}
+                  >
+                    {guest.rsvp === true
+                      ? 'Confirmed'
+                      : guest.rsvp === false
+                        ? 'Declined'
+                        : 'Pending'}
+                  </span>
+                </td>
+                <td>{guest.menu ? `Menu ${guest.menu}` : '-'}</td>
+                <td>
+                  {guest.is_special_guest && <span class="special-badge">Special Guest</span>}
+                </td>
+                <td>
+                  <div class="actions">
+                    <button class="button button--small edit-guest" data-id={guest.id}>
+                      Edit
+                    </button>
+                    <button
+                      class="button button--small button--danger delete-guest"
+                      data-id={guest.id}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .guests {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+
+    h2 {
+      margin-bottom: 3rem;
+    }
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .stat-card {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: 0.8rem;
+    text-align: center;
+
+    h3 {
+      margin-bottom: 1rem;
+      color: #6c757d;
+    }
+
+    .stat {
+      font-size: 3.2rem;
+      font-weight: bold;
+      color: var(--black);
+    }
+  }
+
+  .guests-table {
+    background-color: #f8f9fa;
+    border-radius: 0.8rem;
+    padding: 2rem;
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.6rem;
+
+      th,
+      td {
+        padding: 1.5rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      th {
+        font-weight: bold;
+        color: #6c757d;
+      }
+    }
+  }
+
+  .status {
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 1.4rem;
+
+    &.confirmed {
+      background-color: #28a745;
+      color: white;
+    }
+
+    &.declined {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    &.pending {
+      background-color: #ffc107;
+      color: var(--black);
+    }
+  }
+
+  .special-badge {
+    background-color: #ffd700;
+    color: var(--black);
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 1.2rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .button--small {
+    font-size: 1.4rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .button--danger {
+    background-color: #dc3545;
+    color: white;
+
+    &:hover {
+      background-color: #c82333;
+    }
+  }
+</style>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  // Delete guest
+  document.querySelectorAll('.delete-guest').forEach((button) => {
+    button.addEventListener('click', async (e) => {
+      const id = (e.target as HTMLButtonElement).dataset.id;
+      if (!id) return;
+
+      if (confirm('Are you sure you want to delete this guest?')) {
+        const { error } = await supabase.from('guests').delete().eq('id', id);
+        if (!error) {
+          window.location.reload();
+        }
+      }
+    });
+  });
+
+  // Edit guest
+  document.querySelectorAll('.edit-guest').forEach((button) => {
+    button.addEventListener('click', (e) => {
+      const id = (e.target as HTMLButtonElement).dataset.id;
+      if (id) {
+        window.location.href = `/admin/guests/${id}`;
+      }
+    });
+  });
+</script>

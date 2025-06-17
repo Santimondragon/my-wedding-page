@@ -1,0 +1,52 @@
+---
+const itineraryDate = '10/10/2025';
+const itineraryTitle = 'Itinerario';
+const events = [
+  { time: '4:00 PM', label: 'Ceremonia' },
+  { time: '5:00 PM', label: 'Cóctel de bienvenida' },
+  { time: '8:00 PM', label: 'Recepción' },
+];
+---
+
+<section class="itinerary">
+  <article class="itinerary__item">
+    <p class="text text--large text--italic">{itineraryDate}</p>
+    <h2 class="heading heading--section">{itineraryTitle}</h2>
+  </article>
+
+  {
+    events.map((event, idx) => (
+      <article class="itinerary__item">
+        <div class="vertical-line" />
+        <h2 class="heading heading--section">{event.time}</h2>
+        <p class="text text--italic">{event.label}</p>
+      </article>
+    ))
+  }
+</section>
+
+<style>
+  .itinerary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3.2rem;
+    padding: 4rem 3.2rem;
+    background-color: var(--white);
+
+    .vertical-line {
+      width: 1px;
+      height: 6rem;
+      background-color: var(--black);
+      margin-bottom: 3.2rem;
+    }
+
+    .itinerary__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+</style>

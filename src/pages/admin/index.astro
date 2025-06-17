@@ -1,0 +1,57 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { checkAuth } from '../../middleware/auth';
+
+const { isAuthorized } = await checkAuth(Astro);
+
+if (!isAuthorized) {
+  return Astro.redirect('/login');
+}
+---
+
+<AdminLayout title="Admin Dashboard">
+  <main class="admin-dashboard">
+    <h1 class="heading heading--1">Admin Dashboard</h1>
+    <div class="dashboard-links">
+      <a href="/admin/guests" class="dashboard-link">
+        <h2 class="heading heading--3">Manage Guests</h2>
+        <p class="text">View and manage your guest list</p>
+      </a>
+      <a href="/admin/invitations" class="dashboard-link">
+        <h2 class="heading heading--3">Manage Invitations</h2>
+        <p class="text">Handle wedding invitations</p>
+      </a>
+    </div>
+  </main>
+</AdminLayout>
+
+<style>
+  .admin-dashboard {
+    padding: 3.2rem;
+  }
+
+  .dashboard-links {
+    margin-top: 3.2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+    gap: 2.4rem;
+  }
+
+  .dashboard-link {
+    padding: 2.4rem;
+    background-color: var(--white);
+    border-radius: 0.8rem;
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+      transform: translateY(-0.4rem);
+    }
+
+    h2 {
+      margin-bottom: 0.8rem;
+    }
+  }
+</style>

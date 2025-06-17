@@ -23,6 +23,7 @@
     ]
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
     "astro": "^5.0.2"
   },
   "devDependencies": {
