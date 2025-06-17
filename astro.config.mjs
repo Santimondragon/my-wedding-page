@@ -5,5 +5,8 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
     site: 'http://auraysantisecasan.com/',
     base: '/my-wedding-page',
-    output: 'static'
+    output: 'static',
+    vite: {
+        envPrefix: 'PUBLIC_'
+    }
 });

@@ -1,10 +1,10 @@
 import type { AstroGlobal } from 'astro';
 
-const ADMIN_PASSWORD = import.meta.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = import.meta.env.PUBLIC_ADMIN_PASSWORD;
 const AUTH_COOKIE = 'admin-auth';
 
 if (!ADMIN_PASSWORD) {
-  throw new Error('ADMIN_PASSWORD environment variable is not set');
+  throw new Error('PUBLIC_ADMIN_PASSWORD environment variable is not set');
 }
 
 export async function checkAuth(Astro: AstroGlobal) {
