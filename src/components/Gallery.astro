@@ -1,0 +1,28 @@
+---
+import Logo from './Logo.astro';
+import ImageBackground from './ImageBackground.astro';
+import SectionOverlay from './SectionOverlay.astro';
+---
+
+<section class="gallery">
+  <img class="gallery__image" src="/images/gallery-1.jpg" alt="Gallery Image 1" />
+  <img class="gallery__image" src="/images/gallery-2.jpg" alt="Gallery Image 2" />
+  <img class="gallery__image" src="/images/gallery-3.jpg" alt="Gallery Image 3" />
+</section>
+
+<style>
+  .gallery {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.4rem;
+    padding: 5.6rem;
+
+    .gallery__image {
+      aspect-ratio: 10 / 16;
+      width: 100%;
+      object-fit: cover;
+    }
+  }
+</style>

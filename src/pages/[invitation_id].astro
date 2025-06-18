@@ -9,6 +9,7 @@ import Itinerary from '../components/Itinerary.astro';
 import Dresscode from '../components/Dresscode.astro';
 import Footer from '../components/Footer.astro';
 import HeaderHero from '../components/HeaderHero.astro';
+import Gallery from '../components/Gallery.astro';
 
 import { getSupabase } from '../lib/supabase';
 import type { Database } from '@/lib/database.types';
@@ -65,6 +66,7 @@ const title = invitation.title;
       <Location />
       <Itinerary />
       <Dresscode />
+      <Gallery />
       <Footer />
     </main>
   </body>
@@ -92,8 +94,8 @@ const title = invitation.title;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 4rem;
-        height: 100%;
+        gap: 3.2rem;
+        height: 90vh;
         width: 100%;
         padding: 5.6rem 4rem;
       }

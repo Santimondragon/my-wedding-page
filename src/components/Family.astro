@@ -12,6 +12,7 @@ const { title } = Astro.props;
 
 <section class="family">
   <SectionOverlay position="top" isBigger />
+  <SectionOverlay position="bottom" isDarker />
   <ImageBackground path="/images/family.jpg" alt="Family Image" />
   <div class="family__content section-content">
     <h3 class="heading heading--section">{title}</h3>
@@ -27,11 +28,11 @@ const { title } = Astro.props;
   .family {
     position: relative;
     width: 100vw;
-    height: 90vh;
   }
 
   .family__content {
     justify-content: space-between;
+    min-height: 80rem;
 
     .text,
     .heading {

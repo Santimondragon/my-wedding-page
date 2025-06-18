@@ -4,35 +4,37 @@ import ImageBackground from './ImageBackground.astro';
 import SectionOverlay from './SectionOverlay.astro';
 ---
 
-<section class="footer section-content|">
+<section class="footer section-content">
   <SectionOverlay position="bottom" isDarker isBigger />
   <ImageBackground path="/images/footer.jpg" alt="Footer Image" />
   <div class="footer__content section-content">
     <h3 class="heading heading--section">Gracias por ser parte de nuestra historia</h3>
     <Logo color="white" />
   </div>
-
-  <style>
-    .footer {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    .footer__content {
-      justify-content: flex-end;
-      padding: 4rem 2.4rem;
-
-      .location__text,
-      .heading {
-        text-align: center;
-        color: var(--white);
-      }
-
-      svg {
-        width: 7.2rem;
-        height: auto;
-      }
-    }
-  </style>
 </section>
+
+<style>
+  .footer {
+    position: relative;
+    width: 100vw;
+    min-height: 100vh;
+    height: fit-content;
+  }
+
+  .footer__content {
+    justify-content: flex-end;
+    padding: 4rem 2.4rem;
+    min-height: 80rem;
+
+    .location__text,
+    .heading {
+      text-align: center;
+      color: var(--white);
+    }
+
+    svg {
+      width: 7.2rem;
+      height: auto;
+    }
+  }
+</style>
