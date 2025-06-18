@@ -55,8 +55,29 @@ const title = invitation.title;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Welcome</title>
+
+    <!-- Twitter -->
+    <meta name="twitter:title" content={`Invitación ${title}`} />
+    <meta name="twitter:description" content="10.10.2025 - Medellín, Colombia" />
+    <meta
+      name="twitter:image"
+      content="https://santimondragon.github.io/my-wedding-page/preview.jpg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Facebook -->
+    <meta property="og:title" content={`Invitación ${title}`} />
+    <meta property="og:description" content="10.10.2025 - Medellín, Colombia" />
+    <meta
+      property="og:image"
+      content="https://santimondragon.github.io/my-wedding-page/preview.jpg"
+    />
+
+    <!-- Common -->
+    <link rel="icon" type="image/svg+x" href="./favicon.svg" />
+    <title>Invitación {title}</title>
   </head>
+
   <body>
     <main>
       <HeaderHero />
@@ -70,35 +91,35 @@ const title = invitation.title;
       <Footer />
     </main>
   </body>
-</html>
 
-<style>
-  body {
-    main {
-      height: 100vh;
-      width: 100%;
-      display: grid;
-      place-items: center;
-      overflow-x: hidden;
-      background-color: var(--white);
-
-      header,
-      section {
-        max-width: 56rem;
+  <style>
+    body {
+      main {
+        height: 100vh;
         width: 100%;
-      }
+        display: grid;
+        place-items: center;
+        overflow-x: hidden;
+        background-color: var(--white);
 
-      .section-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3.2rem;
-        height: 90vh;
-        width: 100%;
-        padding: 5.6rem 4rem;
+        header,
+        section {
+          max-width: 56rem;
+          width: 100%;
+        }
+
+        .section-content {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 3.2rem;
+          height: 90vh;
+          width: 100%;
+          padding: 5.6rem 4rem;
+        }
       }
     }
-  }
-</style>
+  </style>
+</html>
