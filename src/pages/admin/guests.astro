@@ -21,9 +21,9 @@ const { data: guests } = await supabase
 
 // Calculate statistics
 const totalGuests = guests?.length || 0;
-const confirmedGuests = guests?.filter((g) => g.rsvp === true).length || 0;
-const pendingGuests = guests?.filter((g) => g.rsvp === null).length || 0;
-const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
+const confirmedGuests = guests?.filter((g: { rsvp: boolean }) => g.rsvp === true).length || 0;
+const pendingGuests = guests?.filter((g: { rsvp: null }) => g.rsvp === null).length || 0;
+const declinedGuests = guests?.filter((g: { rsvp: boolean }) => g.rsvp === false).length || 0;
 ---
 
 <AdminLayout>
@@ -62,45 +62,53 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
         </thead>
         <tbody>
           {
-            guests?.map((guest) => (
-              <tr>
-                <td>{guest.name}</td>
-                <td>
-                  <span
-                    class={`status ${
-                      guest.rsvp === true
-                        ? 'confirmed'
-                        : guest.rsvp === false
-                          ? 'declined'
-                          : 'pending'
-                    }`}
-                  >
-                    {guest.rsvp === true
-                      ? 'Confirmed'
-                      : guest.rsvp === false
-                        ? 'Declined'
-                        : 'Pending'}
-                  </span>
-                </td>
-                <td>{guest.menu ? `Menu ${guest.menu}` : '-'}</td>
-                <td>
-                  {guest.is_special_guest && <span class="special-badge">Special Guest</span>}
-                </td>
-                <td>
-                  <div class="actions">
-                    <button class="button button--small edit-guest" data-id={guest.id}>
-                      Edit
-                    </button>
-                    <button
-                      class="button button--small button--danger delete-guest"
-                      data-id={guest.id}
+            guests?.map(
+              (guest: {
+                name: string;
+                rsvp: boolean;
+                menu: any;
+                is_special_guest: any;
+                id: string;
+              }) => (
+                <tr>
+                  <td>{guest.name}</td>
+                  <td>
+                    <span
+                      class={`status ${
+                        guest.rsvp === true
+                          ? 'confirmed'
+                          : guest.rsvp === false
+                            ? 'declined'
+                            : 'pending'
+                      }`}
                     >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
+                      {guest.rsvp === true
+                        ? 'Confirmed'
+                        : guest.rsvp === false
+                          ? 'Declined'
+                          : 'Pending'}
+                    </span>
+                  </td>
+                  <td>{guest.menu ? `Menu ${guest.menu}` : '-'}</td>
+                  <td>
+                    {guest.is_special_guest && <span class="special-badge">Special Guest</span>}
+                  </td>
+                  <td>
+                    <div class="actions">
+                      <button class="button button--small edit-guest" data-id={guest.id}>
+                        Edit
+                      </button>
+                      <button
+                        class="button button--small button--danger delete-guest"
+                        data-id={guest.id}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            )
           }
         </tbody>
       </table>

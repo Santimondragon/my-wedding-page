@@ -1,5 +1,6 @@
 ---
 interface Props {
+  id?: string;
   text: string;
   color: 'black' | 'white';
   href?: string;
@@ -7,7 +8,7 @@ interface Props {
   type?: 'button' | 'submit';
 }
 
-const { text, color = 'white', href, onClick, type = 'button' } = Astro.props;
+const { id, text, color = 'white', href, onClick, type = 'button' } = Astro.props;
 
 if (href && onClick) {
   throw new Error('Button cannot have both href and onClick props');
@@ -16,11 +17,11 @@ if (href && onClick) {
 
 {
   href ? (
-    <a href={href} class={`button button--${color}`} target="_blank">
+    <a id={id} href={href} class={`button button--${color}`} target="_blank">
       <span class="button__text text text--italic">{text}</span>
     </a>
   ) : (
-    <button class={`button button--${color}`} onclick={onClick} type={type}>
+    <button id={id} class={`button button--${color}`} onclick={onClick} type={type}>
       <span class="button__text text text--italic">{text}</span>
     </button>
   )

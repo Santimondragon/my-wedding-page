@@ -5,9 +5,9 @@ import SectionOverlay from './SectionOverlay.astro';
 ---
 
 <section class="location">
-  <SectionOverlay position="bottom" />
+  <SectionOverlay position="bottom" isBigger />
   <ImageBackground path="/images/location.jpg" alt="Location Image" />
-  <div class="location__content">
+  <div class="location__content section-content">
     <h3 class="heading heading--section">Ubicación</h3>
     <p class="location__text text text--xl text--italic">Ceremonia y recepción</p>
     <p class="location__text text">
@@ -25,16 +25,7 @@ import SectionOverlay from './SectionOverlay.astro';
   }
 
   .location__content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: flex-end;
-    gap: 0.8rem;
-    width: 100%;
-    height: 100%;
-    padding: 4.8rem 2.4rem;
 
     .location__text,
     .heading {

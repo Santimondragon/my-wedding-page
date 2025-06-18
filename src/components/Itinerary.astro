@@ -5,10 +5,11 @@ const events = [
   { time: '4:00 PM', label: 'Ceremonia' },
   { time: '5:00 PM', label: 'Cóctel de bienvenida' },
   { time: '8:00 PM', label: 'Recepción' },
+  { time: '2:00 AM', label: 'Fin' },
 ];
 ---
 
-<section class="itinerary">
+<section class="itinerary section-content">
   <article class="itinerary__item">
     <p class="text text--large text--italic">{itineraryDate}</p>
     <h2 class="heading heading--section">{itineraryTitle}</h2>
@@ -31,8 +32,6 @@ const events = [
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3.2rem;
-    padding: 4rem 3.2rem;
     background-color: var(--white);
 
     .vertical-line {

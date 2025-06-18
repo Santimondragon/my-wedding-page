@@ -38,20 +38,12 @@ export async function getInvitation(invitationId: string): Promise<Invitation | 
 
 export async function updateGuestRSVP(
   guestId: string,
-  rsvp: boolean,
-  menu?: 1 | 2 | 3
+  rsvp: boolean
 ): Promise<boolean> {
   const updateData: Database['public']['Tables']['guests']['Update'] = {
     rsvp,
     updated_at: new Date().toISOString()
   };
-
-  // Only include menu if attending
-  if (rsvp) {
-    updateData.menu = menu;
-  } else {
-    updateData.menu = null; // Clear menu choice if not attending
-  }
 
   const { error } = await supabase
     .from('guests')
@@ -66,10 +58,13 @@ export async function updateGuestRSVP(
   return true;
 }
 
-export async function createInvitation(guests: { name: string; is_special_guest: boolean }[]): Promise<string | null> {
+export async function createInvitation(
+  title: string,
+  guests: { name: string; is_special_guest: boolean }[]
+): Promise<string | null> {
   const { data: invitation, error: invitationError } = await supabase
     .from('invitations')
-    .insert({})
+    .insert({ title })
     .select()
     .single();
 

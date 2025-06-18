@@ -5,10 +5,14 @@ import SectionOverlay from './SectionOverlay.astro';
 ---
 
 <section class="dresscode">
-  <SectionOverlay position="bottom" />
-  <SectionOverlay position="top" />
+  <SectionOverlay position="top" isBigger isDarker />
+  <SectionOverlay position="bottom" isDarker />
   <ImageBackground path="/images/dresscode.jpg" alt="Dresscode Image" />
-  <div class="dresscode__content">
+  <div class="dresscode__content section-content">
+    <div class="dresscode__text">
+      <p class="text text--large text--italic">Formal</p>
+      <h3 class="heading heading--section">Dresscode</h3>
+    </div>
     <div class="dresscode__columns">
       <div class="dresscode__column">
         <h4 class="text text--xl text--italic">Ellos</h4>
@@ -30,10 +34,6 @@ import SectionOverlay from './SectionOverlay.astro';
         </ul>
       </div>
     </div>
-    <div class="dresscode__text">
-      <h3 class="heading heading--section">Dresscode</h3>
-      <p class="text text--xl text--italic">Formal</p>
-    </div>
     <Button text="Referencias e inspiración aquí" href="https://g.co/kgs/orJ43GH" color="white" />
   </div>
 </section>
@@ -46,16 +46,6 @@ import SectionOverlay from './SectionOverlay.astro';
   }
 
   .dresscode__content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    gap: 4rem;
-    padding: 4.8rem 2.4rem;
-
     .text,
     .heading {
       color: var(--white);

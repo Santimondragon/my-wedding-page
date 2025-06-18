@@ -1,0 +1,294 @@
+---
+import ImageBackground from './ImageBackground.astro';
+import Logo from './Logo.astro';
+import SectionOverlay from './SectionOverlay.astro';
+---
+
+<div class="wedding-intro">
+  <!-- Loading Screen -->
+  <div class="loading-screen">
+    <Logo color="black" />
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <header class="header">
+      <div class="header__date">
+        <span class="heading heading--3">10</span>
+        <span class="heading heading--3">10</span>
+        <span class="heading heading--3">25</span>
+      </div>
+      <p class="header__title text text--xl text--italic">¡Nos casamos!</p>
+    </header>
+
+    <section class="hero">
+      <SectionOverlay position="top" />
+      <SectionOverlay position="bottom" />
+      <ImageBackground path="/images/hero.jpg" alt="Hero Image" />
+      <div class="hero__content section-content">
+        <h2 class="heading heading--section">
+          <span class="name-line">aura</span><br />
+          <span class="name-line ampersand">&</span><br />
+          <span class="name-line">santi</span>
+        </h2>
+        <Logo color="white" />
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  import { gsap } from 'gsap';
+
+  class WeddingIntroAnimation {
+    private tl: gsap.core.Timeline;
+    private isPageLoaded = false;
+    private minLoadingTime = 1500; // Minimum loading screen time (1.5s)
+    private loadStartTime: number;
+
+    constructor() {
+      this.tl = gsap.timeline({ paused: true });
+      this.loadStartTime = Date.now();
+      this.init();
+    }
+
+    private init() {
+      // Disable scrolling initially
+      document.body.style.overflow = 'hidden';
+
+      // Wait for complete page load
+      this.waitForPageLoad();
+    }
+
+    private waitForPageLoad() {
+      const checkPageLoad = () => {
+        // Check if page is completely loaded
+        if (document.readyState === 'complete') {
+          this.onPageLoaded();
+        } else {
+          // Keep checking every 100ms
+          setTimeout(checkPageLoad, 100);
+        }
+      };
+
+      // Start checking immediately
+      checkPageLoad();
+
+      // Also listen for the window load event as backup
+      window.addEventListener('load', () => {
+        this.onPageLoaded();
+      });
+
+      // Fallback timeout (in case something goes wrong)
+      setTimeout(() => {
+        if (!this.isPageLoaded) {
+          console.warn('Page load timeout - starting animation anyway');
+          this.onPageLoaded();
+        }
+      }, 10000); // 10 second timeout
+    }
+
+    private onPageLoaded() {
+      if (this.isPageLoaded) return; // Prevent multiple calls
+
+      this.isPageLoaded = true;
+
+      // Calculate how long we've been loading
+      const loadTime = Date.now() - this.loadStartTime;
+
+      // If we haven't shown loading screen long enough, wait a bit more
+      if (loadTime < this.minLoadingTime) {
+        const remainingTime = this.minLoadingTime - loadTime;
+        setTimeout(() => this.startAnimation(), remainingTime);
+      } else {
+        this.startAnimation();
+      }
+    }
+
+    private startAnimation() {
+      const ease = 'power2.out';
+      const duration = 1.2;
+
+      this.tl
+        // Phase 1: Fade out loading screen and show main content
+        .to('.loading-screen', {
+          opacity: 0,
+          duration,
+          ease: 'power2.inOut',
+        })
+        .to(
+          '.main-content',
+          {
+            opacity: 1,
+            duration,
+            ease,
+          },
+          '<'
+        ) // Start at the same time as previous tween
+
+        // Phase 2: Background entrance
+        .from(
+          '.hero .image-background, .hero img',
+          {
+            scale: 1.1,
+            duration,
+            ease,
+          },
+          '<=0.8'
+        )
+
+        // Phase 3: Names reveal (staggered)
+        .from(
+          '.name-line',
+          {
+            y: '-25%',
+            opacity: 0,
+            stagger: 0.2,
+            duration,
+            ease,
+          },
+          '<=0.8'
+        )
+
+        // Phase 4: Logo appearance
+        .from(
+          '.hero__content .logo',
+          {
+            scale: 1.1,
+            opacity: 0,
+            duration,
+            ease,
+          },
+          '<=1'
+        )
+
+        // Phase 5: Header entrance
+        .from(
+          '.header',
+          {
+            y: '-20%',
+            opacity: 0,
+            duration: duration * 2,
+            ease,
+          },
+          '<=0.6'
+        )
+
+        // Phase 6: Enable scrolling and cleanup
+        .call(() => {
+          document.body.style.overflow = 'auto';
+          // Remove loading screen from DOM after animation
+          const loadingScreen = document.querySelector('.loading-screen');
+          if (loadingScreen) {
+            loadingScreen.remove();
+          }
+        });
+
+      // Start the timeline
+      this.tl.play();
+    }
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    new WeddingIntroAnimation();
+  });
+</script>
+
+<style>
+  .wedding-intro {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  /* Loading Screen */
+  .loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .loading-screen :global(.logo) {
+    width: 8rem;
+    height: auto;
+  }
+
+  /* Main Content */
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    opacity: 0;
+  }
+
+  /* Header Styles */
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4.8rem;
+    width: 100%;
+    height: 15rem;
+    z-index: 10;
+    background-color: var(--white);
+  }
+
+  .header__date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 2.4rem;
+
+    .heading {
+      line-height: 0.6em;
+    }
+
+    .heading:nth-child(2) {
+      position: relative;
+      left: 1.6rem;
+    }
+  }
+
+  /* Hero Styles */
+  .hero {
+    position: relative;
+    width: 100vw;
+    height: 100%;
+    overflow: hidden;
+    padding-top: 14rem;
+  }
+
+  .hero__content {
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+
+    .heading {
+      color: var(--white);
+      text-align: center;
+      line-height: 1em;
+    }
+  }
+
+  .name-line {
+    display: inline-block;
+  }
+
+  .hero__content :global(.logo) {
+    width: 7.2rem;
+    height: auto;
+  }
+</style>

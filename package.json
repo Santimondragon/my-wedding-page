@@ -25,7 +25,8 @@
   "dependencies": {
     "@astrojs/vercel": "^8.1.5",
     "@supabase/supabase-js": "^2.50.0",
-    "astro": "^5.0.2"
+    "astro": "^5.0.2",
+    "gsap": "^3.13.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",

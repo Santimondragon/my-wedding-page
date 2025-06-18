@@ -17,6 +17,7 @@ const { data: invitations } = await supabase
   .select(
     `
     id,
+    title,
     created_at,
     updated_at,
     guests (
@@ -39,6 +40,18 @@ const { data: invitations } = await supabase
       <section class="create-invitation">
         <h2 class="heading heading--2">Create New Invitation</h2>
         <form id="invitation-form" class="form">
+          <div class="form-group">
+            <label for="invitation-title" class="text">Invitation Title</label>
+            <input
+              type="text"
+              id="invitation-title"
+              name="invitation-title"
+              required
+              class="input"
+              placeholder="e.g., Smith Family"
+            />
+          </div>
+
           <div class="form-group">
             <label for="guest-names" class="text">Guest Names (one per line)</label>
             <textarea
@@ -67,46 +80,48 @@ Jane Doe"></textarea>
         <h2 class="heading heading--2">Existing Invitations</h2>
         <div id="invitations-container" class="invitations-container">
           {
-            invitations?.map((invitation: { id: string; created_at: string; guests: any[] }) => (
-              <div class="invitation-card" data-id={invitation.id}>
-                <h3 class="heading heading--3">Invitation {invitation.id}</h3>
-                <div class="details">
-                  <p>Created: {new Date(invitation.created_at).toLocaleDateString()}</p>
-                  <div class="guests-list">
-                    {invitation.guests?.map(
-                      (guest: {
-                        name: string;
-                        is_special_guest: boolean;
-                        rsvp: boolean | null;
-                      }) => (
-                        <div class="guest-item">
-                          <span class="guest-name">
-                            {guest.name}
-                            {guest.is_special_guest && (
-                              <span class="special-badge">Special Guest</span>
-                            )}
-                          </span>
-                          <span
-                            class={`rsvp-status ${guest.rsvp === true ? 'confirmed' : guest.rsvp === false ? 'declined' : 'pending'}`}
-                          >
-                            {guest.rsvp === true
-                              ? 'Confirmed'
-                              : guest.rsvp === false
-                                ? 'Declined'
-                                : 'Pending'}
-                          </span>
-                        </div>
-                      )
-                    )}
+            invitations?.map(
+              (invitation: { id: string; title: string; created_at: string; guests: any[] }) => (
+                <div class="invitation-card" data-id={invitation.id}>
+                  <h3 class="heading heading--3">{invitation.title}</h3>
+                  <div class="details">
+                    <p>Created: {new Date(invitation.created_at).toLocaleDateString()}</p>
+                    <div class="guests-list">
+                      {invitation.guests?.map(
+                        (guest: {
+                          name: string;
+                          is_special_guest: boolean;
+                          rsvp: boolean | null;
+                        }) => (
+                          <div class="guest-item">
+                            <span class="guest-name">
+                              {guest.name}
+                              {guest.is_special_guest && (
+                                <span class="special-badge">Special Guest</span>
+                              )}
+                            </span>
+                            <span
+                              class={`rsvp-status ${guest.rsvp === true ? 'confirmed' : guest.rsvp === false ? 'declined' : 'pending'}`}
+                            >
+                              {guest.rsvp === true
+                                ? 'Confirmed'
+                                : guest.rsvp === false
+                                  ? 'Declined'
+                                  : 'Pending'}
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                  <div class="actions">
+                    <button class="button button--delete" data-action="delete">
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <div class="actions">
-                  <button class="button button--delete" data-action="delete">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
+              )
+            )
           }
         </div>
       </section>
@@ -280,6 +295,7 @@ Jane Doe"></textarea>
   import { getSupabase } from '../../lib/supabase';
 
   const form = document.getElementById('invitation-form');
+  const titleInput = document.getElementById('invitation-title') as HTMLInputElement;
   const guestNamesTextarea = document.getElementById('guest-names') as HTMLTextAreaElement;
   const specialGuestsDiv = document.getElementById('special-guests');
 
@@ -323,7 +339,7 @@ Jane Doe"></textarea>
       const supabase = getSupabase();
       const { data: invitation, error: invitationError } = await supabase
         .from('invitations')
-        .insert({})
+        .insert({ title: titleInput.value })
         .select()
         .single();
 
