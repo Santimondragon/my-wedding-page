@@ -2,13 +2,24 @@
 interface Props {
   id?: string;
   text: string;
-  color: 'black' | 'white';
+  color: 'black' | 'white' | 'blue';
   href?: string;
   onClick?: string;
   type?: 'button' | 'submit';
+  outline?: boolean;
+  target?: '_blank' | '_self' | '_parent' | '_top';
 }
 
-const { id, text, color = 'white', href, onClick, type = 'button' } = Astro.props;
+const {
+  id,
+  text,
+  color = 'white',
+  href,
+  onClick,
+  type = 'button',
+  outline = false,
+  target = '_blank',
+} = Astro.props;
 
 if (href && onClick) {
   throw new Error('Button cannot have both href and onClick props');
@@ -17,11 +28,25 @@ if (href && onClick) {
 
 {
   href ? (
-    <a id={id} href={href} class={`button button--${color}`} target="_blank">
+    <a
+      id={id}
+      href={href}
+      class={`button button--${color} ${outline ? 'button--outline' : ''} ${
+        color === 'blue' ? 'button--blue' : ''
+      }`}
+      target={target}
+    >
       <span class="button__text text text--italic">{text}</span>
     </a>
   ) : (
-    <button id={id} class={`button button--${color}`} onclick={onClick} type={type}>
+    <button
+      id={id}
+      class={`button button--${color} ${outline ? 'button--outline' : ''} ${
+        color === 'blue' ? 'button--blue' : ''
+      }`}
+      onclick={onClick}
+      type={type}
+    >
       <span class="button__text text text--italic">{text}</span>
     </button>
   )
@@ -44,18 +69,41 @@ if (href && onClick) {
 
   .button--white {
     background-color: var(--white);
+
+    &.button--outline {
+      background-color: transparent;
+      border: 1px solid var(--white);
+    }
+
+    .button__text {
+      color: var(--black);
+    }
   }
 
   .button--black {
     background-color: var(--black);
+
+    &.button--outline {
+      background-color: var(--white);
+      border: 1px solid var(--black);
+    }
+
+    .button__text {
+      color: var(--white);
+    }
   }
 
-  .button--white .button__text {
-    color: var(--black);
-  }
+  .button--blue {
+    background-color: var(--blue);
 
-  .button--black .button__text {
-    color: var(--white);
+    &.button--outline {
+      background-color: var(--white);
+      border: 2px solid var(--blue);
+    }
+
+    .button__text {
+      color: var(--blue);
+    }
   }
 
   .button__text {

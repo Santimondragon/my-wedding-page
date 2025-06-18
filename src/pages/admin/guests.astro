@@ -12,9 +12,12 @@ const { data: guests } = await supabase
     name,
     rsvp,
     menu,
-    is_special_guest,
     invitation_id,
-    created_at
+    created_at,
+    invitations (
+      title,
+      is_special_invitation
+    )
   `
   )
   .order('created_at', { ascending: false });
@@ -56,7 +59,7 @@ const declinedGuests = guests?.filter((g: { rsvp: boolean }) => g.rsvp === false
             <th>Name</th>
             <th>Status</th>
             <th>Menu Choice</th>
-            <th>Special Guest</th>
+            <th>Invitation</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -64,11 +67,16 @@ const declinedGuests = guests?.filter((g: { rsvp: boolean }) => g.rsvp === false
           {
             guests?.map(
               (guest: {
-                name: string;
-                rsvp: boolean;
-                menu: any;
-                is_special_guest: any;
                 id: string;
+                name: string;
+                rsvp: boolean | null;
+                menu: 1 | 2 | 3 | null;
+                invitation_id: string;
+                created_at: string;
+                invitations: {
+                  title: string;
+                  is_special_invitation: boolean;
+                }[];
               }) => (
                 <tr>
                   <td>{guest.name}</td>
@@ -91,7 +99,17 @@ const declinedGuests = guests?.filter((g: { rsvp: boolean }) => g.rsvp === false
                   </td>
                   <td>{guest.menu ? `Menu ${guest.menu}` : '-'}</td>
                   <td>
-                    {guest.is_special_guest && <span class="special-badge">Special Guest</span>}
+                    {Array.isArray(guest.invitations) && guest.invitations.length > 0
+                      ? guest.invitations.map((inv, idx) => (
+                          <span>
+                            {inv.title}
+                            {inv.is_special_invitation && (
+                              <span class="special-badge">Special Invitation</span>
+                            )}
+                            {idx < guest.invitations.length - 1 && ', '}
+                          </span>
+                        ))
+                      : '-'}
                   </td>
                   <td>
                     <div class="actions">

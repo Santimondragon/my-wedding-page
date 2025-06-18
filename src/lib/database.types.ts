@@ -19,18 +19,21 @@ export interface Database {
           title: string
           created_at: string
           updated_at: string
+          is_special_invitation: boolean
         }
         Insert: {
           id?: string
           title: string
           created_at?: string
           updated_at?: string
+          is_special_invitation?: boolean
         }
         Update: {
           id?: string
           title?: string
           created_at?: string
           updated_at?: string
+          is_special_invitation?: boolean
         }
       }
       guests: {
@@ -40,7 +43,6 @@ export interface Database {
           name: string
           rsvp: boolean | null
           menu: 1 | 2 | 3 | null
-          is_special_guest: boolean
           created_at: string
           updated_at: string
         }
@@ -50,7 +52,6 @@ export interface Database {
           name: string
           rsvp?: boolean | null
           menu?: 1 | 2 | 3 | null
-          is_special_guest?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -60,7 +61,6 @@ export interface Database {
           name?: string
           rsvp?: boolean | null
           menu?: 1 | 2 | 3 | null
-          is_special_guest?: boolean
           created_at?: string
           updated_at?: string
         }

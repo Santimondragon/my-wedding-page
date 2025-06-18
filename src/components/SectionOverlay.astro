@@ -3,9 +3,10 @@ interface Props {
   position?: 'top' | 'bottom';
   isBigger?: boolean;
   isDarker?: boolean;
+  isWhite?: boolean;
 }
 
-const { position = 'top', isBigger = false, isDarker = false } = Astro.props;
+const { position = 'top', isBigger = false, isDarker = false, isWhite = false } = Astro.props;
 ---
 
 <div
@@ -13,6 +14,7 @@ const { position = 'top', isBigger = false, isDarker = false } = Astro.props;
   data-position={position}
   data-is-bigger={isBigger}
   data-is-darker={isDarker}
+  data-is-white={isWhite}
 >
 </div>
 
@@ -37,6 +39,10 @@ const { position = 'top', isBigger = false, isDarker = false } = Astro.props;
     &[data-is-darker='true'] {
       background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
     }
+
+    &[data-is-white='true'] {
+      background: linear-gradient(to bottom, var(--white), rgba(255, 255, 255, 0));
+    }
   }
 
   .section-overlay[data-position='bottom'] {
@@ -45,6 +51,10 @@ const { position = 'top', isBigger = false, isDarker = false } = Astro.props;
 
     &[data-is-darker='true'] {
       background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+    }
+
+    &[data-is-white='true'] {
+      background: linear-gradient(to top, var(--white), rgba(255, 255, 255, 0));
     }
   }
 </style>

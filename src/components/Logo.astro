@@ -1,6 +1,6 @@
 ---
 interface Props {
-  color: 'black' | 'white';
+  color: 'black' | 'white' | 'blue';
 }
 
 const { color = 'white' } = Astro.props;
@@ -20,11 +20,15 @@ const { color = 'white' } = Astro.props;
 </svg>
 
 <style>
-  .logo--white {
+  .logo--white path {
     fill: var(--white);
   }
 
-  .logo--black {
+  .logo--black path {
     fill: var(--black);
+  }
+
+  .logo--blue path {
+    fill: var(--blue);
   }
 </style>

@@ -2,15 +2,16 @@
 interface Props {
   path: string;
   alt: string;
+  isWhite?: boolean;
 }
 
-const { path, alt } = Astro.props;
+const { path, alt, isWhite = false } = Astro.props;
 ---
 
 <div class="image-background">
   <div class="image-background__background">
     <img class="image-background__background-image" src={path} alt={alt} />
-    <div class="image-background__background-overlay"></div>
+    <div class="image-background__background-overlay" data-is-white={isWhite}></div>
   </div>
   <div class="image-background__image-wrapper">
     <img class="image-background__image" src={path} alt={alt} />
@@ -54,6 +55,10 @@ const { path, alt } = Astro.props;
     mix-blend-mode: multiply;
     backdrop-filter: blur(1rem);
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5));
+
+    &[data-is-white='true'] {
+      background: linear-gradient(to bottom, var(--white), rgba(255, 255, 255, 0.5));
+    }
   }
 
   .image-background__image-wrapper {

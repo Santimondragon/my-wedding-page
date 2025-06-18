@@ -14,9 +14,9 @@ import SectionOverlay from './SectionOverlay.astro';
   <div class="main-content">
     <header class="header">
       <div class="header__date">
-        <span class="heading heading--3">10</span>
-        <span class="heading heading--3">10</span>
-        <span class="heading heading--3">25</span>
+        <span class="heading">10</span>
+        <span class="heading">10</span>
+        <span class="heading">25</span>
       </div>
       <p class="header__title text text--xl text--italic">¡Nos casamos!</p>
     </header>
@@ -32,6 +32,22 @@ import SectionOverlay from './SectionOverlay.astro';
           <span class="name-line">santi</span>
         </h2>
         <Logo color="white" />
+        <div class="scroll-arrow">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 4L12 20M12 20L18 14M12 20L6 14"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </div>
       </div>
     </section>
   </div>
@@ -124,7 +140,16 @@ import SectionOverlay from './SectionOverlay.astro';
             ease,
           },
           '<'
-        ) // Start at the same time as previous tween
+        )
+        .to(
+          '.wedding-intro ',
+          {
+            height: '95vh',
+            duration,
+            ease,
+          },
+          '<'
+        )
 
         // Phase 2: Background entrance
         .from(
@@ -182,6 +207,27 @@ import SectionOverlay from './SectionOverlay.astro';
           if (loadingScreen) {
             loadingScreen.remove();
           }
+        })
+
+        // Final Phase: Show and animate scroll arrow
+        .fromTo(
+          '.scroll-arrow',
+          {
+            opacity: 0,
+            y: -10,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.inOut',
+          }
+        )
+        .to('.scroll-arrow', {
+          opacity: 0,
+          duration: 1,
+          delay: 4,
+          ease: 'power2.inOut',
         });
 
       // Start the timeline
@@ -199,7 +245,8 @@ import SectionOverlay from './SectionOverlay.astro';
   .wedding-intro {
     position: relative;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
   }
 
   .loading-screen {
@@ -207,7 +254,7 @@ import SectionOverlay from './SectionOverlay.astro';
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     background-color: var(--white);
     display: flex;
     align-items: center;
@@ -241,7 +288,7 @@ import SectionOverlay from './SectionOverlay.astro';
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100%;
     opacity: 0;
   }
 
@@ -265,6 +312,7 @@ import SectionOverlay from './SectionOverlay.astro';
     align-items: center;
     justify-content: flex-start;
     margin-left: 2.4rem;
+    font-size: 4.8rem;
 
     .heading {
       line-height: 0.6em;
@@ -305,11 +353,40 @@ import SectionOverlay from './SectionOverlay.astro';
     height: auto;
   }
 
-  @media (orientation: landscape), (max-height: 719.98px) {
+  @media (min-aspect-ratio: 1) and (max-height: 689.98px),
+    @media (min-aspect-ratio: 16 / 9) and (max-height: 819.98px) {
     .heading--section {
       display: flex;
       flex-direction: row;
       gap: 0.8rem;
+    }
+  }
+
+  .scroll-arrow {
+    position: absolute;
+    bottom: 8rem;
+    left: 85%;
+    transform: translateX(-50%);
+    opacity: 0;
+  }
+
+  .scroll-arrow svg {
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
     }
   }
 </style>

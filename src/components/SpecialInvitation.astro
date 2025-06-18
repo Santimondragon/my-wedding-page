@@ -1,0 +1,59 @@
+---
+import Button from './Button.astro';
+import ImageBackground from './ImageBackground.astro';
+import SectionOverlay from './SectionOverlay.astro';
+---
+
+<section class="special-invitation">
+  <SectionOverlay position="bottom" isWhite />
+  <ImageBackground path="/images/special-invitation.jpg" alt="Special Invitation Image" isWhite />
+  <div class="special-invitation__content section-content">
+    <div class="special-invitation__content-inner">
+      <h3 class="heading">Will you be my something blue?</h3>
+      <p class="text text--xl text--italic">Ceremony and reception</p>
+    </div>
+    <Button
+      text="Tenemos una invitación especial para ti"
+      href="/special-invitation"
+      color="blue"
+      target="_self"
+      outline
+    />
+  </div>
+</section>
+
+<style>
+  .special-invitation {
+    position: relative;
+    width: 100vw;
+    color: var(--blue);
+  }
+
+  .special-invitation__content {
+    height: fit-content;
+    min-height: 72rem;
+    padding-top: 9rem;
+    padding-bottom: 9rem;
+
+    .special-invitation__content-inner {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-grow: 1;
+    }
+
+    .text,
+    .heading {
+      color: var(--blue);
+    }
+
+    .heading {
+      font-size: 3.2rem;
+      text-wrap: balance;
+    }
+
+    .button {
+      align-self: flex-end;
+    }
+  }
+</style>

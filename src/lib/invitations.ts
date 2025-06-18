@@ -60,11 +60,15 @@ export async function updateGuestRSVP(
 
 export async function createInvitation(
   title: string,
-  guests: { name: string; is_special_guest: boolean }[]
+  isSpecialInvitation: boolean,
+  guestNames: string[]
 ): Promise<string | null> {
   const { data: invitation, error: invitationError } = await supabase
     .from('invitations')
-    .insert({ title })
+    .insert({ 
+      title,
+      is_special_invitation: isSpecialInvitation 
+    })
     .select()
     .single();
 
@@ -74,9 +78,9 @@ export async function createInvitation(
   }
 
   const { error: guestsError } = await supabase.from('guests').insert(
-    guests.map((guest) => ({
+    guestNames.map((name) => ({
       invitation_id: invitation.id,
-      ...guest,
+      name,
       rsvp: null,
       menu: null,
     }))

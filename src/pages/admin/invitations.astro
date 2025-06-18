@@ -20,12 +20,12 @@ const { data: invitations } = await supabase
     title,
     created_at,
     updated_at,
+    is_special_invitation,
     guests (
       id,
       name,
       rsvp,
-      menu,
-      is_special_guest
+      menu
     )
   `
   )
@@ -64,9 +64,10 @@ Jane Doe"></textarea>
           </div>
 
           <div class="form-group">
-            <label class="text">Special Guests</label>
-            <div id="special-guests" class="special-guests">
-              <!-- Special guest checkboxes will be added here -->
+            <label class="text">Special Invitation</label>
+            <div class="special-invitation">
+              <input type="checkbox" id="is-special-invitation" name="is-special-invitation" />
+              <label for="is-special-invitation">Mark as Special Invitation</label>
             </div>
           </div>
 
@@ -81,37 +82,51 @@ Jane Doe"></textarea>
         <div id="invitations-container" class="invitations-container">
           {
             invitations?.map(
-              (invitation: { id: string; title: string; created_at: string; guests: any[] }) => (
+              (invitation: {
+                id: string;
+                title: string;
+                created_at: string;
+                is_special_invitation: boolean;
+                guests: any[];
+              }) => (
                 <div class="invitation-card" data-id={invitation.id}>
-                  <h3 class="heading heading--3">{invitation.title}</h3>
+                  <h3 class="heading heading--3">
+                    {invitation.title}
+                    {invitation.is_special_invitation && (
+                      <span class="special-badge">Special Invitation</span>
+                    )}
+                  </h3>
                   <div class="details">
-                    <p class="text">www.aurarysantisecasan.com/{invitation.id}</p>
+                    <div class="copy-link">
+                      <a
+                        href={`https://www.auraysantisecasan.com/${invitation.id}`}
+                        class="text"
+                        target="_blank"
+                      >
+                        {invitation.id}
+                      </a>
+                      <button
+                        class="copy-button"
+                        data-link={`https://www.auraysantisecasan.com/${invitation.id}`}
+                      >
+                        Copy
+                      </button>
+                    </div>
                     <div class="guests-list">
-                      {invitation.guests?.map(
-                        (guest: {
-                          name: string;
-                          is_special_guest: boolean;
-                          rsvp: boolean | null;
-                        }) => (
-                          <div class="guest-item">
-                            <span class="guest-name">
-                              {guest.name}
-                              {guest.is_special_guest && (
-                                <span class="special-badge">Special Guest</span>
-                              )}
-                            </span>
-                            <span
-                              class={`rsvp-status ${guest.rsvp === true ? 'confirmed' : guest.rsvp === false ? 'declined' : 'pending'}`}
-                            >
-                              {guest.rsvp === true
-                                ? 'Confirmed'
-                                : guest.rsvp === false
-                                  ? 'Declined'
-                                  : 'Pending'}
-                            </span>
-                          </div>
-                        )
-                      )}
+                      {invitation.guests?.map((guest: { name: string; rsvp: boolean | null }) => (
+                        <div class="guest-item">
+                          <span class="guest-name">{guest.name}</span>
+                          <span
+                            class={`rsvp-status ${guest.rsvp === true ? 'confirmed' : guest.rsvp === false ? 'declined' : 'pending'}`}
+                          >
+                            {guest.rsvp === true
+                              ? 'Confirmed'
+                              : guest.rsvp === false
+                                ? 'Declined'
+                                : 'Pending'}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                   <div class="actions">
@@ -174,13 +189,13 @@ Jane Doe"></textarea>
     }
   }
 
-  .special-guests {
+  .special-invitation {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
   }
 
-  .special-guest-checkbox {
+  .special-invitation-checkbox {
     display: flex;
     align-items: center;
     gap: 0.8rem;
@@ -289,36 +304,57 @@ Jane Doe"></textarea>
       }
     }
   }
+
+  .copy-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--black);
+  }
+
+  .copy-button {
+    padding: 0.4rem 0.8rem;
+    color: var(--black);
+    border: none;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 </style>
 
 <script>
   import { getSupabase } from '../../lib/supabase';
 
+  // Copy link functionality
+  document.querySelectorAll('.copy-button').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const link = (button as HTMLButtonElement).dataset.link;
+      if (link) {
+        try {
+          await navigator.clipboard.writeText(link);
+          const originalText = button.textContent;
+          button.textContent = 'Copied!';
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+        }
+      }
+    });
+  });
+
   const form = document.getElementById('invitation-form');
   const titleInput = document.getElementById('invitation-title') as HTMLInputElement;
   const guestNamesTextarea = document.getElementById('guest-names') as HTMLTextAreaElement;
-  const specialGuestsDiv = document.getElementById('special-guests');
-
-  // Update special guests checkboxes when guest names change
-  guestNamesTextarea?.addEventListener('input', () => {
-    if (!specialGuestsDiv) return;
-
-    const guestNames = guestNamesTextarea.value
-      .split('\n')
-      .map((name) => name.trim())
-      .filter((name) => name);
-
-    specialGuestsDiv.innerHTML = guestNames
-      .map(
-        (name, index) => `
-          <label class="special-guest-checkbox">
-            <input type="checkbox" name="special-guest-${index}" value="${name}">
-            ${name}
-          </label>
-        `
-      )
-      .join('');
-  });
+  const isSpecialInvitationCheckbox = document.getElementById(
+    'is-special-invitation'
+  ) as HTMLInputElement;
 
   // Handle form submission
   form?.addEventListener('submit', async (e) => {
@@ -339,25 +375,20 @@ Jane Doe"></textarea>
       const supabase = getSupabase();
       const { data: invitation, error: invitationError } = await supabase
         .from('invitations')
-        .insert({ title: titleInput.value })
+        .insert({
+          title: titleInput.value,
+          is_special_invitation: isSpecialInvitationCheckbox.checked,
+        })
         .select()
         .single();
 
       if (invitationError) throw invitationError;
-
-      // Get special guests
-      const specialGuests = new Set(
-        Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(
-          (cb) => (cb as HTMLInputElement).value
-        )
-      );
 
       // Create the guests
       const { error: guestsError } = await supabase.from('guests').insert(
         guestNames.map((name) => ({
           invitation_id: invitation.id,
           name,
-          is_special_guest: specialGuests.has(name),
         }))
       );
 
@@ -379,24 +410,20 @@ Jane Doe"></textarea>
   // Handle delete button clicks
   document.querySelectorAll('.button--delete').forEach((button) => {
     button.addEventListener('click', async (e) => {
-      const target = e.target as HTMLButtonElement;
-      const card = target.closest('.invitation-card') as HTMLDivElement;
-      const id = card?.dataset.id;
+      const invitationCard = (e.target as HTMLElement).closest('.invitation-card') as HTMLElement;
+      const invitationId = invitationCard?.dataset.id;
 
-      if (!id) return;
+      if (!invitationId) return;
 
       if (confirm('Are you sure you want to delete this invitation?')) {
-        try {
-          const supabase = getSupabase();
-          const { error } = await supabase.from('invitations').delete().eq('id', id);
+        const supabase = getSupabase();
+        const { error } = await supabase.from('invitations').delete().eq('id', invitationId);
 
-          if (error) throw error;
-
-          // Remove the card from the UI
-          card.remove();
-        } catch (error) {
+        if (error) {
           console.error('Error deleting invitation:', error);
           alert('Error deleting invitation. Please try again.');
+        } else {
+          invitationCard?.remove();
         }
       }
     });

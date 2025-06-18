@@ -1,0 +1,154 @@
+---
+import '../styles/index.css';
+import SectionOverlay from '../components/SectionOverlay.astro';
+import ImageBackground from '../components/ImageBackground.astro';
+import Button from '../components/Button.astro';
+import Logo from '../components/Logo.astro';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <!-- Twitter -->
+    <meta name="twitter:title" content="Reserva la Fecha" />
+    <meta name="twitter:description" content="10.10.2025 - Medellín, Colombia" />
+    <meta
+      name="twitter:image"
+      content="https://santimondragon.github.io/my-wedding-page/preview.jpg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Facebook -->
+    <meta property="og:title" content="Reserva la Fecha" />
+    <meta property="og:description" content="10.10.2025 - Medellín, Colombia" />
+    <meta
+      property="og:image"
+      content="https://santimondragon.github.io/my-wedding-page/preview.jpg"
+    />
+
+    <!-- Common -->
+    <link rel="icon" type="image/svg+x" href="./favicon.svg" />
+    <title>Reserva La Fecha</title>
+  </head>
+  <body>
+    <main>
+      <section class="special-invitation">
+        <SectionOverlay position="bottom" isWhite />
+        <ImageBackground
+          path="/images/special-invitation-page.jpg"
+          alt="Special Invitation Image"
+          isWhite
+        />
+        <div class="special-invitation__content section-content">
+          <a href="javascript:history.back()" class="special-invitation__content-link">
+            <svg
+              width="27"
+              height="24"
+              viewBox="0 0 27 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0.93934 10.9393C0.353553 11.5251 0.353553 12.4749 0.93934 13.0607L10.4853 22.6066C11.0711 23.1924 12.0208 23.1924 12.6066 22.6066C13.1924 22.0208 13.1924 21.0711 12.6066 20.4853L4.12132 12L12.6066 3.51472C13.1924 2.92893 13.1924 1.97919 12.6066 1.3934C12.0208 0.807611 11.0711 0.807611 10.4853 1.3934L0.93934 10.9393ZM25 13.5C25.8284 13.5 26.5 12.8284 26.5 12C26.5 11.1716 25.8284 10.5 25 10.5V13.5ZM2 12V13.5H25V12V10.5H2V12Z"
+                fill="#5F688B"></path>
+            </svg>
+          </a>
+          <div class="special-invitation__content-inner">
+            <h3 class="heading">Will you be my something blue?</h3>
+            <p class="text text--xl text--italic">Ceremony and reception</p>
+          </div>
+          <p class="special-invitation__content-text text">
+            Dicen que toda novia debe llevar algo azul… Para nosotros, eso simboliza el amor, la
+            confianza y la lealtad. Y ustedes representan exactamente eso.
+          </p>
+          <p class="special-invitation__content-text text">
+            Antes del gran día, queremos compartir un asado íntimo con las personas más cercanas y
+            especiales. Una noche para relajarnos, reírnos y celebrar juntos lo que está por venir.
+          </p>
+          <Logo color="blue" />
+          <div class="special-invitation__content-date">
+            <span class="heading">Jueves</span>
+            <span class="heading">09/10/2025</span>
+            <span class="heading">7:00 PM</span>
+          </div>
+          <div class="special-invitation__content-location">
+            <span class="heading">Lugar</span>
+            <span class="text text--xl text--italic">Cra 24 D # 39 C sur 91</span>
+            <span class="text text--xl text--italic">Edificio Mandala</span>
+            <span class="text text--xl text--italic">Salón Social</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
+
+<style>
+  main {
+    height: 100vh;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    overflow-x: hidden;
+    background-color: var(--white);
+    min-height: 72rem;
+  }
+
+  .special-invitation {
+    position: relative;
+    color: var(--blue);
+    z-index: 1;
+    height: 100vh;
+    padding: 3.2rem 4rem;
+    max-width: 56rem;
+    width: 100%;
+
+    .special-invitation__content {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+      height: fit-content;
+      height: 100%;
+      gap: 3.2rem;
+
+      .special-invitation__content-inner {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .special-invitation__content-text {
+        text-wrap: balance;
+      }
+
+      .special-invitation__content-date,
+      .special-invitation__content-location {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        .text {
+          text-align: right;
+        }
+      }
+
+      .text,
+      .heading {
+        color: var(--blue);
+      }
+
+      .heading {
+        font-size: 3.2rem;
+        text-wrap: balance;
+      }
+
+      .button {
+        align-self: flex-end;
+      }
+    }
+  }
+</style>
