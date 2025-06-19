@@ -1,0 +1,1260 @@
+---
+import AdminLayout from '../layouts/AdminLayout.astro';
+import { checkAuth } from '../middleware/auth';
+import { getSupabase } from '../lib/supabase';
+import {
+  Mail,
+  Users,
+  CheckCircle,
+  Clock,
+  Plus,
+  Search,
+  Copy,
+  Trash2,
+  Star,
+  Calendar,
+  MailOpen,
+  Save,
+} from 'lucide-astro';
+
+const { isAuthorized } = await checkAuth(Astro);
+
+if (!isAuthorized) {
+  return Astro.redirect('/login');
+}
+
+const supabase = getSupabase();
+
+// Get all invitations with their guests and statistics
+const { data: invitations } = await supabase
+  .from('invitations')
+  .select(
+    `
+    id,
+    title,
+    created_at,
+    updated_at,
+    is_special_invitation,
+    guests (
+      id,
+      name,
+      rsvp,
+      menu
+    )
+  `
+  )
+  .order('created_at', { ascending: false });
+
+// Calculate statistics
+const totalInvitations = invitations?.length || 0;
+const totalGuests = invitations?.reduce((acc, inv) => acc + (inv.guests?.length || 0), 0) || 0;
+const confirmedGuests =
+  invitations?.reduce(
+    (acc, inv) => acc + (inv.guests?.filter((g) => g.rsvp === true).length || 0),
+    0
+  ) || 0;
+const pendingGuests =
+  invitations?.reduce(
+    (acc, inv) => acc + (inv.guests?.filter((g) => g.rsvp === null).length || 0),
+    0
+  ) || 0;
+---
+
+<AdminLayout title="Manage Invitations">
+  <main class="admin-dashboard">
+    <!-- Header -->
+    <header class="dashboard-header">
+      <div class="header-content">
+        <h1 class="dashboard-title">Invitation Management</h1>
+        <p class="dashboard-subtitle">Manage wedding invitations and track RSVPs</p>
+      </div>
+    </header>
+
+    <!-- Statistics Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--primary">
+          <Mail size={24} />
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{totalInvitations}</h3>
+          <p class="stat-label">Total Invitations</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--secondary">
+          <Users size={24} />
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{totalGuests}</h3>
+          <p class="stat-label">Total Guests</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--success">
+          <CheckCircle size={24} />
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{confirmedGuests}</h3>
+          <p class="stat-label">Confirmed</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--warning">
+          <Clock size={24} />
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{pendingGuests}</h3>
+          <p class="stat-label">Pending</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Create Invitation Panel -->
+      <section class="panel create-panel">
+        <div class="panel-header">
+          <div class="panel-header-content">
+            <div class="panel-icon">
+              <MailOpen size={20} />
+            </div>
+            <div>
+              <h2 class="panel-title">Create New Invitation</h2>
+              <p class="panel-description">Add a new invitation with guest details</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="invitation-form" class="invitation-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="invitation-title" class="form-label">
+                Invitation Title
+                <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="invitation-title"
+                name="invitation-title"
+                required
+                class="form-input"
+                placeholder="e.g., Smith Family"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="guest-names" class="form-label">
+                Guest Names
+                <span class="required">*</span>
+                <span class="form-hint">One name per line</span>
+              </label>
+              <textarea
+                id="guest-names"
+                name="guest-names"
+                required
+                class="form-textarea"
+                rows="4"
+                placeholder="John Doe"></textarea>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="is-special-invitation"
+                  name="is-special-invitation"
+                  class="checkbox-input"
+                />
+                <span class="checkbox-checkmark"></span>
+                <span class="checkbox-label">
+                  <Star size={16} class="inline-icon" />
+                  Mark as Special Invitation
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <Plus size={16} />
+              Create Invitation
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Invitations List Panel -->
+      <section class="panel list-panel">
+        <div class="panel-header">
+          <div class="panel-header-content">
+            <div class="panel-icon">
+              <Users size={20} />
+            </div>
+            <div>
+              <h2 class="panel-title">Existing Invitations</h2>
+            </div>
+          </div>
+          <div class="panel-actions">
+            <div class="search-box">
+              <Search size={16} class="search-icon" />
+              <input
+                type="text"
+                id="search-invitations"
+                placeholder="Search invitations..."
+                class="search-input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div id="invitations-container" class="invitations-list">
+          {
+            invitations?.length === 0 ? (
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <MailOpen size={48} />
+                </div>
+                <h3>No invitations yet</h3>
+                <p>Create your first invitation to get started</p>
+              </div>
+            ) : (
+              invitations?.map((invitation) => (
+                <div class="invitation-card" data-id={invitation.id}>
+                  <div class="card-header">
+                    <div class="card-title-section">
+                      <h3 class="card-title">{invitation.title}</h3>
+                      {invitation.is_special_invitation && (
+                        <span class="special-badge">
+                          <Star size={12} />
+                          Special
+                        </span>
+                      )}
+                    </div>
+                    <div class="card-actions">
+                      <button
+                        class="btn btn-icon btn-copy"
+                        data-link={`https://www.auraysantisecasan.com/${invitation.id}`}
+                        title="Copy invitation link"
+                      >
+                        <Copy size={16} />
+                      </button>
+                      <button
+                        class="btn btn-icon btn-delete"
+                        data-action="delete"
+                        title="Delete invitation"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="card-content">
+                    <div class="invitation-link">
+                      <label class="link-label">Invitation Link:</label>
+                      <div class="link-container">
+                        <code class="invitation-url">auraysantisecasan.com/{invitation.id}</code>
+                      </div>
+                    </div>
+
+                    <div class="guests-section">
+                      <h4 class="guests-title">
+                        <Users size={16} class="inline-icon" />
+                        Guests ({invitation.guests?.length || 0})
+                      </h4>
+                      <div class="guests-grid">
+                        {invitation.guests?.map((guest) => (
+                          <div class="guest-item" data-guest-id={guest.id}>
+                            <span
+                              class={`rsvp-badge rsvp-${
+                                guest.rsvp === true
+                                  ? 'confirmed'
+                                  : guest.rsvp === false
+                                    ? 'declined'
+                                    : 'pending'
+                              }`}
+                            >
+                              {guest.rsvp === true ? (
+                                <>
+                                  <CheckCircle size={12} />
+                                  Confirmed
+                                </>
+                              ) : guest.rsvp === false ? (
+                                <>
+                                  <Trash2 size={12} />
+                                  Declined
+                                </>
+                              ) : (
+                                <>
+                                  <Clock size={12} />
+                                  Pending
+                                </>
+                              )}
+                            </span>
+                            <input
+                              type="text"
+                              class="guest-name-input"
+                              value={guest.name}
+                              data-original-value={guest.name}
+                            />
+                            <div class="guest-actions">
+                              <button class="guest-action-btn save hidden" title="Save changes">
+                                <Save size={14} />
+                              </button>
+                              <button class="guest-action-btn delete" title="Remove guest">
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div class="card-meta">
+                      <span class="meta-item">
+                        <Calendar size={12} class="inline-icon" />
+                        Created: {new Date(invitation.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )
+          }
+        </div>
+      </section>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+  </main>
+</AdminLayout>
+
+<style>
+  .admin-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--white);
+    min-height: 100vh;
+    font-family: sans-serif !important;
+  }
+
+  /* Header */
+  .dashboard-header {
+    margin-bottom: 2rem;
+  }
+
+  .header-content {
+    text-align: center;
+  }
+
+  .dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+
+  .dashboard-subtitle {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  /* Statistics Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    color: white;
+  }
+
+  .stat-icon--primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  }
+
+  .stat-icon--secondary {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  }
+
+  .stat-icon--success {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+
+  .stat-icon--warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  /* Content Grid */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Panel Styles */
+  .panel {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .panel-icon {
+    width: 40px;
+    height: 40px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+  }
+
+  .panel-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .panel-description {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  /* Form Styles */
+  .invitation-form {
+    padding: 1.5rem;
+  }
+
+  .form-row {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .required {
+    color: #ef4444;
+  }
+
+  .form-hint {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 400;
+  }
+
+  .form-input,
+  .form-textarea {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  /* Checkbox Styles */
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem 0;
+  }
+
+  .checkbox-input {
+    display: none;
+  }
+
+  .checkbox-checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .checkbox-input:checked + .checkbox-checkmark {
+    background: #3b82f6;
+    border-color: #3b82f6;
+  }
+
+  .checkbox-input:checked + .checkbox-checkmark::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .checkbox-label {
+    font-size: 0.875rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Button Styles */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: #3b82f6;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  .btn-icon {
+    padding: 0.5rem;
+    min-width: auto;
+  }
+
+  .btn-copy {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .btn-copy:hover {
+    background: #e5e7eb;
+  }
+
+  .btn-delete {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .btn-delete:hover {
+    background: #fee2e2;
+  }
+
+  /* Search Box */
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-input {
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    width: 250px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: #6b7280;
+    z-index: 1;
+  }
+
+  /* Invitations List */
+  .invitations-list {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .invitation-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .invitation-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .card-title-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .special-badge {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .invitation-link {
+    margin-bottom: 1rem;
+  }
+
+  .link-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  .link-container {
+    margin-top: 0.25rem;
+  }
+
+  .invitation-url {
+    background: #f8fafc;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #475569;
+    display: block;
+  }
+
+  .guests-section {
+    margin-bottom: 1rem;
+  }
+
+  .guests-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin: 0 0 0.75rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .guests-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .guest-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border-radius: 6px;
+    gap: 0.75rem;
+  }
+
+  .guest-name {
+    font-size: 0.875rem;
+    color: #374151;
+    flex: 1;
+  }
+
+  .guest-name-input {
+    font-size: 0.875rem;
+    color: #374151;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    width: 100%;
+    transition: all 0.2s;
+  }
+
+  .guest-name-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: white;
+  }
+
+  .guest-name-input:not(:focus):hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .guest-actions {
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .guest-item:hover .guest-actions {
+    opacity: 1;
+  }
+
+  .guest-action-btn {
+    padding: 0.25rem;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .guest-action-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #374151;
+  }
+
+  .guest-action-btn.save {
+    color: #059669;
+  }
+
+  .guest-action-btn.delete {
+    color: #dc2626;
+  }
+
+  .guest-action-btn.hidden {
+    display: none;
+  }
+
+  .rsvp-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    width: 10rem;
+    padding: 0.4rem 1.2rem;
+    border-radius: 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+
+    &.rsvp-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    &.rsvp-confirmed {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    &.rsvp-declined {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+  }
+
+  .card-meta {
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .meta-item {
+    font-size: 0.75rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  /* Inline Icons */
+  .inline-icon {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+  }
+
+  .empty-icon {
+    margin-bottom: 1rem;
+    color: #9ca3af;
+  }
+
+  .empty-state h3 {
+    margin: 0 0 0.5rem 0;
+    color: #374151;
+  }
+
+  .empty-state p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #1f2937;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Loading State */
+  .loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1080px) {
+    .stats-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .admin-dashboard {
+      padding: 1rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-title {
+      font-size: 2rem;
+    }
+
+    .search-input {
+      width: 200px;
+    }
+
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .card-actions {
+      align-self: flex-end;
+    }
+
+    .panel-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .panel-actions {
+      align-self: stretch;
+    }
+
+    .search-box {
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  import { getSupabase } from '../lib/supabase';
+
+  // Toast notification function
+  function showToast(message: string, type: 'success' | 'error' = 'success') {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.className = `toast show ${type}`;
+
+    setTimeout(() => {
+      toast.className = 'toast';
+    }, 3000);
+  }
+
+  // Copy link functionality
+  document.querySelectorAll('.btn-copy').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const link = (button as HTMLButtonElement).dataset.link;
+      if (link) {
+        try {
+          await navigator.clipboard.writeText(link);
+          showToast('Invitation link copied to clipboard!');
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+          showToast('Failed to copy link', 'error');
+        }
+      }
+    });
+  });
+
+  // Search functionality
+  const searchInput = document.getElementById('search-invitations') as HTMLInputElement;
+  const invitationCards = document.querySelectorAll('.invitation-card');
+
+  searchInput?.addEventListener('input', (e) => {
+    const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+
+    invitationCards.forEach((card) => {
+      const title = card.querySelector('.card-title')?.textContent?.toLowerCase() || '';
+      const guestNames = Array.from(card.querySelectorAll('.guest-name'))
+        .map((el) => el.textContent?.toLowerCase() || '')
+        .join(' ');
+
+      const isVisible = title.includes(searchTerm) || guestNames.includes(searchTerm);
+      (card as HTMLElement).style.display = isVisible ? 'block' : 'none';
+    });
+  });
+
+  // Form handling
+  const form = document.getElementById('invitation-form') as HTMLFormElement;
+  const titleInput = document.getElementById('invitation-title') as HTMLInputElement;
+  const guestNamesTextarea = document.getElementById('guest-names') as HTMLTextAreaElement;
+  const isSpecialInvitationCheckbox = document.getElementById(
+    'is-special-invitation'
+  ) as HTMLInputElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Add loading state
+    form.classList.add('loading');
+    const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML =
+      '<svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> Creating...';
+
+    const guestNames = guestNamesTextarea.value
+      .split('\n')
+      .map((name) => name.trim())
+      .filter((name) => name);
+
+    if (guestNames.length === 0) {
+      showToast('Please enter at least one guest name', 'error');
+      form.classList.remove('loading');
+      submitButton.innerHTML = originalText;
+      return;
+    }
+
+    try {
+      const supabase = getSupabase();
+
+      // Create the invitation
+      const { data: invitation, error: invitationError } = await supabase
+        .from('invitations')
+        .insert({
+          title: titleInput.value,
+          is_special_invitation: isSpecialInvitationCheckbox.checked,
+        })
+        .select()
+        .single();
+
+      if (invitationError) throw invitationError;
+
+      // Create the guests
+      const { error: guestsError } = await supabase.from('guests').insert(
+        guestNames.map((name) => ({
+          invitation_id: invitation.id,
+          name,
+        }))
+      );
+
+      if (guestsError) {
+        // Clean up the invitation if guest creation fails
+        await supabase.from('invitations').delete().eq('id', invitation.id);
+        throw guestsError;
+      }
+
+      // Success
+      form.reset();
+      showToast(`Invitation "${invitation.title}" created successfully!`);
+
+      // Reload page after short delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      console.error('Error creating invitation:', error);
+      showToast('Error creating invitation. Please try again.', 'error');
+    } finally {
+      form.classList.remove('loading');
+      submitButton.innerHTML = originalText;
+    }
+  });
+
+  // Delete functionality
+  document.querySelectorAll('.btn-delete').forEach((button) => {
+    button.addEventListener('click', async (e) => {
+      const invitationCard = (e.target as HTMLElement).closest('.invitation-card') as HTMLElement;
+      const invitationId = invitationCard?.dataset.id;
+      const invitationTitle = invitationCard?.querySelector('.card-title')?.textContent;
+
+      if (!invitationId) return;
+
+      if (
+        confirm(
+          `Are you sure you want to delete the invitation "${invitationTitle}"?\n\nThis action cannot be undone.`
+        )
+      ) {
+        const originalContent = button.innerHTML;
+
+        try {
+          // Add loading state
+          button.innerHTML =
+            '<svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>';
+          (button as HTMLButtonElement).disabled = true;
+
+          const supabase = getSupabase();
+          const { error } = await supabase.from('invitations').delete().eq('id', invitationId);
+
+          if (error) throw error;
+
+          // Remove card with animation
+          invitationCard.style.transition = 'all 0.3s ease';
+          invitationCard.style.transform = 'translateX(-100%)';
+          invitationCard.style.opacity = '0';
+
+          setTimeout(() => {
+            invitationCard.remove();
+            showToast(`Invitation "${invitationTitle}" deleted successfully!`);
+          }, 300);
+        } catch (error) {
+          console.error('Error deleting invitation:', error);
+          showToast('Error deleting invitation. Please try again.', 'error');
+          button.innerHTML = originalContent;
+          (button as HTMLButtonElement).disabled = false;
+        }
+      }
+    });
+  });
+
+  // Guest name editing functionality
+  document.querySelectorAll('.guest-name-input').forEach((input) => {
+    const inputElement = input as HTMLInputElement;
+    const guestItem = inputElement.closest('.guest-item');
+    const saveButton = guestItem?.querySelector('.guest-action-btn.save');
+    const originalValue = inputElement.getAttribute('data-original-value');
+
+    inputElement.addEventListener('input', (e) => {
+      const newValue = (e.target as HTMLInputElement).value;
+      if (saveButton) {
+        saveButton.classList.toggle('hidden', newValue === originalValue);
+      }
+    });
+
+    inputElement.addEventListener('keypress', (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        inputElement.blur();
+      }
+    });
+
+    saveButton?.addEventListener('click', async () => {
+      const guestId = guestItem?.getAttribute('data-guest-id');
+      const newName = inputElement.value;
+
+      if (!guestId || !newName.trim()) return;
+
+      try {
+        const supabase = getSupabase();
+        const { error } = await supabase.from('guests').update({ name: newName }).eq('id', guestId);
+
+        if (error) throw error;
+
+        // Update the original value and hide save button
+        inputElement.setAttribute('data-original-value', newName);
+        saveButton.classList.add('hidden');
+        showToast('Guest name updated successfully!');
+      } catch (error) {
+        console.error('Error updating guest name:', error);
+        showToast('Error updating guest name. Please try again.', 'error');
+        // Revert to original value
+        inputElement.value = originalValue || '';
+      }
+    });
+  });
+
+  // Guest deletion functionality
+  document.querySelectorAll('.guest-action-btn.delete').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const guestItem = button.closest('.guest-item') as HTMLElement;
+      const guestId = guestItem?.getAttribute('data-guest-id');
+      const guestNameInput = guestItem?.querySelector('.guest-name-input') as HTMLInputElement;
+      const guestName = guestNameInput?.value;
+
+      if (!guestId || !guestName) return;
+
+      if (
+        confirm(
+          `Are you sure you want to remove "${guestName}" from this invitation?\n\nThis action cannot be undone.`
+        )
+      ) {
+        const originalContent = button.innerHTML;
+
+        try {
+          button.innerHTML =
+            '<svg class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>';
+          (button as HTMLButtonElement).disabled = true;
+
+          const supabase = getSupabase();
+          const { error } = await supabase.from('guests').delete().eq('id', guestId);
+
+          if (error) throw error;
+
+          // Remove guest item with animation
+          guestItem.style.transition = 'all 0.3s ease';
+          guestItem.style.transform = 'translateX(-100%)';
+          guestItem.style.opacity = '0';
+
+          setTimeout(() => {
+            guestItem.remove();
+            showToast(`Guest "${guestName}" removed successfully!`);
+          }, 300);
+        } catch (error) {
+          console.error('Error removing guest:', error);
+          showToast('Error removing guest. Please try again.', 'error');
+          button.innerHTML = originalContent;
+          (button as HTMLButtonElement).disabled = false;
+        }
+      }
+    });
+  });
+</script>
