@@ -20,6 +20,7 @@ export interface Database {
           created_at: string
           updated_at: string
           is_special_invitation: boolean
+          is_sent: boolean
         }
         Insert: {
           id?: string
@@ -27,6 +28,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
           is_special_invitation?: boolean
+          is_sent?: boolean
         }
         Update: {
           id?: string
@@ -34,6 +36,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
           is_special_invitation?: boolean
+          is_sent?: boolean
         }
       }
       guests: {
