@@ -80,6 +80,10 @@ const { guests, isSpecialInvitation } = Astro.props;
         Los niños nos acompañan en el corazón, pero esta vez la fiesta es solo para los grandes.
       </li>
     </ul>
+
+    <article class="rsvp__rain">
+      <span class="heading">Lluvia de Sobres</span>
+    </article>
     {
       guests.every((g) => g.rsvp === null) && (
         <>
@@ -145,6 +149,21 @@ const { guests, isSpecialInvitation } = Astro.props;
         &:nth-child(2):before {
           content: '**';
         }
+      }
+    }
+
+    .rsvp__rain {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      border-bottom: 1px solid var(--black);
+      border-top: 1px solid var(--black);
+
+      .heading {
+        font-size: 3.2rem;
+        padding: 4.2rem 0;
       }
     }
 
