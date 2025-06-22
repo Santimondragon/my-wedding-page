@@ -66,6 +66,10 @@
   font-style: italic;
 }
 
+.text--bold {
+  font-weight: 700;
+}
+
 /* Large text modifier */
 .text--xl {
   font-size: clamp(3.2rem, 1.5vw, 4.2rem); /* 32px to 42px */
