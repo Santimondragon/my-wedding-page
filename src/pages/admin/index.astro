@@ -1,9 +1,9 @@
 ---
-import '../styles/index.css';
+import '../../styles/index.css';
 
-import AdminLayout from '../layouts/AdminLayout.astro';
-import { checkAuth } from '../middleware/auth';
-import { getSupabase } from '../lib/supabase';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { checkAuth } from '../../middleware/auth';
+import { getSupabase } from '../../lib/supabase';
 import {
   Mail,
   Users,
@@ -1279,7 +1279,7 @@ https://www.auraysantisecasan.com/${invitation.id}`}
 </style>
 
 <script>
-  import { getSupabase } from '../lib/supabase';
+  import { getSupabase } from '../../lib/supabase';
 
   // Toast notification function
   function showToast(message: string, type: 'success' | 'error' = 'success') {
