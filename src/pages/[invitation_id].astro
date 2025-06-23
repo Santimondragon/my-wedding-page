@@ -44,10 +44,7 @@ if (!invitation) {
 }
 
 // Sort guests by name
-const guests =
-  (invitation.guests?.sort((a: { name: string }, b: { name: string }) =>
-    a.name.localeCompare(b.name)
-  ) as Database['public']['Tables']['guests']['Row'][]) || [];
+const guests = (invitation.guests as Database['public']['Tables']['guests']['Row'][]) || [];
 
 const title = invitation.title;
 const isSpecialInvitation = invitation.is_special_invitation;
