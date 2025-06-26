@@ -5,15 +5,16 @@ import type { Database } from '../lib/database.types';
 interface Props {
   guests: Database['public']['Tables']['guests']['Row'][];
   isSpecialInvitation: boolean;
+  deadline: string;
 }
 
-const { guests, isSpecialInvitation } = Astro.props;
+const { guests, deadline } = Astro.props;
 ---
 
 <section class="rsvp section-content">
   <div class="rsvp__content">
     <h2 class="heading heading--section">RSVP</h2>
-    <p class="text">Confirmar asistencia antes del 10 de Julio</p>
+    <p class="text">Confirmar asistencia antes del {deadline}</p>
   </div>
 
   <form id="rsvp-form" class="rsvp-form">

@@ -61,13 +61,15 @@ export async function updateGuestRSVP(
 export async function createInvitation(
   title: string,
   isSpecialInvitation: boolean,
+  deadline: string,
   guestNames: string[]
 ): Promise<string | null> {
   const { data: invitation, error: invitationError } = await supabase
     .from('invitations')
     .insert({ 
       title,
-      is_special_invitation: isSpecialInvitation 
+      is_special_invitation: isSpecialInvitation,
+      deadline: deadline,
     })
     .select()
     .single();

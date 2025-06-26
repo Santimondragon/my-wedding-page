@@ -27,6 +27,7 @@ const { data: invitation } = await supabase
     id,
     title,
     is_special_invitation,
+    deadline,
     guests (
       id,
       name,
@@ -48,6 +49,7 @@ const guests = (invitation.guests as Database['public']['Tables']['guests']['Row
 
 const title = invitation.title;
 const isSpecialInvitation = invitation.is_special_invitation;
+const deadline = invitation.deadline;
 ---
 
 <html lang="en">
@@ -73,10 +75,10 @@ const isSpecialInvitation = invitation.is_special_invitation;
 
   <body>
     <main>
-      <HeaderHero />
+      <!-- <HeaderHero /> -->
       <Celebrate />
       <Family title={title} />
-      <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} />
+      <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} deadline={deadline} />
       <Location />
       <Itinerary />
       <Dresscode />
