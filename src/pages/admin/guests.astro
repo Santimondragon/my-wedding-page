@@ -20,8 +20,10 @@ type GuestWithInvitation = Database['public']['Tables']['guests']['Row'] & {
 };
 
 // Get all guests with their invitation information
-const { data: guests, error } = (await supabase.from('guests').select(
-  `
+const { data: guests, error } = (await supabase
+  .from('guests')
+  .select(
+    `
     id,
     name,
     rsvp,
@@ -37,7 +39,8 @@ const { data: guests, error } = (await supabase.from('guests').select(
       updated_at
     )
   `
-)) as {
+  )
+  .order('updated_at', { ascending: false })) as {
   data: GuestWithInvitation[] | null;
   error: any;
 };

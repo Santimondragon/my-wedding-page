@@ -88,7 +88,7 @@ const pendingGuests =
           <p class="stat-label">Total Invitations</p>
         </div>
       </div>
-      <div class="stat-card">
+      <a href="/admin/guests" class="stat-card">
         <div class="stat-icon stat-icon--secondary">
           <Users size={24} />
         </div>
@@ -96,7 +96,7 @@ const pendingGuests =
           <h3 class="stat-number">{totalGuests}</h3>
           <p class="stat-label">Total Guests</p>
         </div>
-      </div>
+      </a>
       <div class="stat-card">
         <div class="stat-icon stat-icon--success">
           <CheckCircle size={24} />
@@ -444,6 +444,8 @@ https://www.auraysantisecasan.com/${invitation.id}`}
     align-items: center;
     gap: 1.6rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    color: var(--gray-800);
   }
 
   .stat-card:hover {
