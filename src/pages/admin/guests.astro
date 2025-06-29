@@ -27,7 +27,6 @@ const { data: guests, error } = (await supabase
     id,
     name,
     rsvp,
-    menu,
     created_at,
     updated_at,
     invitation:invitation_id (
@@ -126,7 +125,6 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
                 <th class="th-name">Guest Name</th>
                 <th class="th-invitation">Invitation</th>
                 <th class="th-rsvp">RSVP Status</th>
-                <th class="th-menu">Menu Choice</th>
                 <th class="th-actions">Actions</th>
               </tr>
             </thead>
@@ -166,7 +164,10 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
                     </td>
                     <td class="td-rsvp">
                       <div class="select-wrapper">
-                        <select>
+                        <select
+                          class="rsvp-select"
+                          data-original-value={guest.rsvp === null ? 'null' : guest.rsvp}
+                        >
                           <option value="true" selected={guest.rsvp === true}>
                             Confirmed
                           </option>
@@ -176,16 +177,6 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
                           <option value="null" selected={guest.rsvp === null}>
                             Pending
                           </option>
-                        </select>
-                      </div>
-                    </td>
-                    <td class="td-menu">
-                      <div class="select-wrapper">
-                        <select class="menu-select" value={guest.menu || ''}>
-                          <option value="">Not Selected</option>
-                          <option value="1">Vegetarian</option>
-                          <option value="2">Non-Vegetarian</option>
-                          <option value="3">Vegan</option>
                         </select>
                       </div>
                     </td>
@@ -446,28 +437,21 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
 
   /* Column specific styles */
   .th-name,
-  .td-name {
-    width: 25%;
-  }
-
+  .td-name,
   .th-invitation,
   .td-invitation {
+    min-width: 8rem;
     width: 30%;
   }
 
   .th-rsvp,
   .td-rsvp {
-    width: 15%;
-  }
-
-  .th-menu,
-  .td-menu {
-    width: 15%;
+    min-width: 12rem;
   }
 
   .th-actions,
   .td-actions {
-    width: 15%;
+    width: fit-content;
     text-align: center;
   }
 
@@ -585,33 +569,12 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
     box-shadow: 0 0 0 3px rgba(65, 76, 122, 0.1);
   }
 
-  .menu-select {
-    width: 100%;
-    padding: 1.125rem;
-    border: 2px solid var(--gray-200);
-    border-radius: 0.75rem;
-    font-size: 1.4rem;
-    background: var(--white);
-    color: var(--gray-800);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .menu-select:focus {
-    outline: none;
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(65, 76, 122, 0.1);
-  }
-
-  .menu-select:hover {
-    border-color: var(--gray-300);
-  }
-
   /* Action Buttons */
   .row-actions {
     display: flex;
     gap: 0.5rem;
     justify-content: center;
+    width: fit-content;
   }
 
   .btn {
@@ -909,18 +872,13 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
   // Track changes and show save button
   function trackChanges(row: Element) {
     const saveBtn = row.querySelector('.btn-save');
-    const nameInput = row.querySelector('.guest-name-input') as HTMLInputElement;
     const rsvpSelect = row.querySelector('.rsvp-select') as HTMLSelectElement;
-    const menuSelect = row.querySelector('.menu-select') as HTMLSelectElement;
 
-    const originalName = nameInput?.getAttribute('data-original-value');
     const originalRSVP = rsvpSelect?.getAttribute('data-original-value');
-    const originalMenu = menuSelect?.getAttribute('data-original-value');
 
-    const hasChanges =
-      nameInput?.value !== originalName ||
-      rsvpSelect?.value !== originalRSVP ||
-      menuSelect?.value !== originalMenu;
+    const hasChanges = rsvpSelect?.value !== originalRSVP;
+
+    console.log('hasChanges', rsvpSelect?.value, originalRSVP);
 
     saveBtn?.classList.toggle('hidden', !hasChanges);
   }
@@ -947,7 +905,6 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
       const guestId = row.getAttribute('data-guest-id');
       const nameInput = row.querySelector('.guest-name-input') as HTMLInputElement;
       const rsvpSelect = row.querySelector('.rsvp-select') as HTMLSelectElement;
-      const menuSelect = row.querySelector('.menu-select') as HTMLSelectElement;
 
       // Add loading state
       button.classList.add('loading');
@@ -960,7 +917,6 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
           .update({
             name: nameInput.value,
             rsvp: rsvpSelect.value === 'null' ? null : rsvpSelect.value === 'true',
-            menu: menuSelect.value === '' ? null : parseInt(menuSelect.value),
             updated_at: new Date().toISOString(),
           })
           .eq('id', guestId);
@@ -978,7 +934,6 @@ const declinedGuests = guests?.filter((g) => g.rsvp === false).length || 0;
         // Update original values
         nameInput.setAttribute('data-original-value', nameInput.value);
         rsvpSelect.setAttribute('data-original-value', rsvpSelect.value);
-        menuSelect.setAttribute('data-original-value', menuSelect.value);
 
         // Hide save button
         button.classList.add('hidden');
