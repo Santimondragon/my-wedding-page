@@ -1,5 +1,4 @@
 ---
-// pages/admin/invitations.astro
 import '../../styles/index.css';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { checkAuth } from '../../middleware/auth';
@@ -12,10 +11,10 @@ if (!isAuthorized) {
   return Astro.redirect('/login');
 }
 
+// Get all invitations with their guests and statistics
 const supabase = getSupabase();
 
-// Get all invitations with their guests and statistics
-const { data: invitations } = await supabase
+const { data: invitationsData } = await supabase
   .from('invitations')
   .select(
     `
@@ -36,19 +35,19 @@ const { data: invitations } = await supabase
   )
   .order('created_at', { ascending: false });
 
+const invitations = invitationsData || [];
+
 // Calculate statistics
-const totalInvitations = invitations?.length || 0;
-const totalGuests = invitations?.reduce((acc, inv) => acc + (inv.guests?.length || 0), 0) || 0;
-const confirmedGuests =
-  invitations?.reduce(
-    (acc, inv) => acc + (inv.guests?.filter((g) => g.rsvp === true).length || 0),
-    0
-  ) || 0;
-const pendingGuests =
-  invitations?.reduce(
-    (acc, inv) => acc + (inv.guests?.filter((g) => g.rsvp === null).length || 0),
-    0
-  ) || 0;
+const totalInvitations = invitations.length;
+const totalGuests = invitations.reduce((acc, inv) => acc + (inv.guests?.length || 0), 0);
+const confirmedGuests = invitations.reduce(
+  (acc, inv) => acc + (inv.guests?.filter((g: any) => g.rsvp === true).length || 0),
+  0
+);
+const pendingGuests = invitations.reduce(
+  (acc, inv) => acc + (inv.guests?.filter((g: any) => g.rsvp === null).length || 0),
+  0
+);
 
 const stats = {
   totalInvitations,
@@ -59,5 +58,5 @@ const stats = {
 ---
 
 <AdminLayout title="Manage Invitations">
-  <InvitationManager client:load initialInvitations={invitations || []} initialStats={stats} />
+  <InvitationManager client:load initialInvitations={invitations} initialStats={stats} />
 </AdminLayout>
