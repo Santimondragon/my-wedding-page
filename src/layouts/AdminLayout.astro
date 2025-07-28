@@ -1,6 +1,7 @@
 ---
 import { checkAuth } from '../middleware/auth';
 import { Mail, Users } from 'lucide-astro';
+import '../styles/index.css';
 
 // Check if user is authenticated
 const { isAuthorized } = await checkAuth(Astro);
