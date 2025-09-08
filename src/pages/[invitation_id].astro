@@ -2,18 +2,20 @@
 import '../styles/custom.css';
 
 import Celebrate from '../components/Celebrate.astro';
-import Family from '../components/Family.astro';
-import RSVP from '../components/RSVP.astro';
-import Location from '../components/Location.astro';
-import Itinerary from '../components/Itinerary.astro';
 import Dresscode from '../components/Dresscode.astro';
+import Family from '../components/Family.astro';
 import Footer from '../components/Footer.astro';
-import HeaderHero from '../components/HeaderHero.astro';
 import Gallery from '../components/Gallery.astro';
+import HeaderHero from '../components/HeaderHero.astro';
+import Itinerary from '../components/Itinerary.astro';
+import Location from '../components/Location.astro';
+import MenuSelection from '../components/MenuSelection.astro';
+import RSVP from '../components/RSVP.astro';
 import SpecialInvitation from '../components/SpecialInvitation.astro';
 
 import { getSupabase } from '../lib/supabase';
 import type { Database } from '@/lib/database.types';
+import Rain from '@/components/Rain.astro';
 
 const supabase = getSupabase();
 
@@ -47,7 +49,7 @@ if (!invitation) {
 // Sort guests by name
 const guests = (invitation.guests as Database['public']['Tables']['guests']['Row'][]) || [];
 
-const title = invitation.title;
+// const title = invitation.title;
 const isSpecialInvitation = invitation.is_special_invitation;
 const deadline = invitation.deadline;
 ---
@@ -58,31 +60,33 @@ const deadline = invitation.deadline;
     <meta name="viewport" content="width=device-width" />
 
     <!-- Twitter -->
-    <meta name="twitter:title" content={`Invitación ${title}`} />
+    <meta name="twitter:title" content="¡Elige tu plato!" />
     <meta name="twitter:description" content="10.10.2025 - Medellín, Colombia" />
     <meta name="twitter:image" content="https://www.auraysantisecasan.com/preview-invitation.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <!-- Facebook -->
-    <meta property="og:title" content={`Invitación ${title}`} />
+    <meta property="og:title" content="Elige tu plato!" />
     <meta property="og:description" content="10.10.2025 - Medellín, Colombia" />
     <meta property="og:image" content="https://www.auraysantisecasan.com/preview-invitation.jpg" />
 
     <!-- Common -->
     <link rel="icon" type="image/svg+x" href="./favicon.svg" />
-    <title>Invitación {title}</title>
+    <title>¡Elige tu plato!</title>
   </head>
 
   <body>
     <main>
       <HeaderHero />
-      <Celebrate />
-      <Family title={title} />
-      <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} deadline={deadline} />
+      <Rain />
+      <!-- <Celebrate /> -->
+      <!-- <Family title={title} /> -->
+      <!-- <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} deadline={deadline} /> -->
+      <MenuSelection guests={guests} />
+      {isSpecialInvitation && <SpecialInvitation />}
       <Location />
       <Itinerary />
       <Dresscode />
-      {isSpecialInvitation && <SpecialInvitation />}
       <Gallery />
       <Footer />
     </main>

@@ -1,91 +1,77 @@
 ---
 import Button from '../components/Button.astro';
 import type { Database } from '../lib/database.types';
+import { dishes } from '../constants';
 
 interface Props {
   guests: Database['public']['Tables']['guests']['Row'][];
-  isSpecialInvitation: boolean;
-  deadline: string;
 }
 
-const { guests, deadline } = Astro.props;
+const { guests } = Astro.props;
 ---
 
-<section class="rsvp section-content">
-  <div class="rsvp__content">
-    <h2 class="heading heading--section">RSVP</h2>
-    <p class="text">Confirmar asistencia antes del {deadline}</p>
+<section class="menu-selection section-content">
+  <div class="menu-selection__content">
+    <h2 class="heading heading--section">Elige tu plato</h2>
+    {
+      guests.every((g) => g.menu === null) && (
+        <>
+          <p class="text text--italic">Antes del 20 de Septiembre</p>
+          <p class="menu-selection__content-text text">
+            Queremos que disfrutes de una experiencia deliciosa en nuestra boda. Por favor,
+            selecciona el plato principal que deseas:
+          </p>
+        </>
+      )
+    }
   </div>
 
-  <form id="rsvp-form" class="rsvp-form">
+  <form id="menu-selection-form" class="menu-selection-form">
     {
-      guests.map((guest) => (
-        <fieldset class="guest-section">
-          <legend class="heading heading--4 guest-name">{guest.name}</legend>
-          {guest.rsvp === null && (
-            <div class="options-wrapper">
-              <div class="option">
-                <input
-                  type="radio"
-                  id={`yes-${guest.id}`}
-                  name={`guest-${guest.id}`}
-                  value="attending"
-                  checked={guest.rsvp === true}
-                  required
-                />
-                <label class="text" for={`yes-${guest.id}`}>
-                  ¡Sí, asistiré!
-                </label>
+      guests
+        .filter((guest) => guest.rsvp)
+        .map((guest) => (
+          <fieldset class="guest-section">
+            <legend class="heading heading--4 guest-name">{guest.name}</legend>
+
+            {guest.menu === null ? (
+              <div class="options-wrapper">
+                {Object.entries(dishes).map(([key, value]) => (
+                  <div class="option">
+                    <input
+                      type="radio"
+                      id={`${key}-${guest.id}`}
+                      name={`guest-${guest.id}`}
+                      value={Number(key)}
+                      checked={guest.menu === Number(key)}
+                      required
+                    />
+                    <label class="text" for={`${key}-${guest.id}`}>
+                      {value.description}
+                    </label>
+                  </div>
+                ))}
               </div>
-              <div class="option">
-                <input
-                  type="radio"
-                  id={`no-${guest.id}`}
-                  name={`guest-${guest.id}`}
-                  value="not_attending"
-                  checked={guest.rsvp === false}
-                />
-                <label class="text" for={`no-${guest.id}`}>
-                  Lamentablemente no podré asistir.
-                </label>
-              </div>
-            </div>
-          )}
-          {guest.rsvp === true && (
-            <>
-              <p class="text text--italic">¡Nos vemos en la celebración!</p>
-              <p class="text">
-                Estamos felices de saber que nos acompañarás en este día tan especial. Tu presencia
-                hará que nuestra boda sea aún más inolvidable. ¡Gracias por compartir este momento
-                con nosotros!
-              </p>
-            </>
-          )}
-          {guest.rsvp === false && (
-            <>
-              <p class="text text--italic">¡Te extrañaremos!</p>
-              <p class="text">
-                Lamentamos que no puedas acompañarnos en este día tan especial, pero entendemos y
-                esperamos que nos acompañes en futuras celebraciones. ¡Gracias por ser parte de
-                nuestras vidas!
-              </p>
-            </>
-          )}
-        </fieldset>
-      ))
+            ) : (
+              <>
+                <p class="text text--italic">¡Selección confirmada!</p>
+                <p class="text">{dishes[guest.menu].description}</p>
+              </>
+            )}
+          </fieldset>
+        ))
     }
 
-    <ul class="rsvp__disclaimer text text--italic">
-      <li>Una vez que envíes tu respuesta, no podrás cambiarla.</li>
-      <li>
-        Los niños nos acompañan en el corazón, pero esta vez la fiesta es solo para los grandes.
-      </li>
-    </ul>
     {
-      guests.every((g) => g.rsvp === null) && (
+      guests.every((g) => g.menu === null) && (
         <>
           <p id="form-status" class="text text--status" style="display: none;" />
-          <Button id="submit-button" text="Enviar" color="black" type="submit" />
+          <Button
+            id="submit-button"
+            text={`Confirmar Plato${guests.length > 1 ? 's' : ''}`}
+            color="black"
+            type="submit"
+          />
         </>
       )
     }
@@ -93,7 +79,7 @@ const { guests, deadline } = Astro.props;
 </section>
 
 <style>
-  .rsvp {
+  .menu-selection {
     align-items: flex-start;
     height: fit-content;
 
@@ -109,14 +95,18 @@ const { guests, deadline } = Astro.props;
       }
     }
 
-    .rsvp__content {
+    .menu-selection__content {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       gap: 0.8rem;
     }
 
-    .rsvp__disclaimer {
+    .menu-selection__content-text {
+      padding: 2.4rem 0;
+    }
+
+    .menu-selection__disclaimer {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -149,7 +139,7 @@ const { guests, deadline } = Astro.props;
       }
     }
 
-    .rsvp-form {
+    .menu-selection-form {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -159,7 +149,7 @@ const { guests, deadline } = Astro.props;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: 1.2rem;
+        gap: 2rem;
         padding-top: 1.6rem !important;
         margin: 0;
         padding: 0;
@@ -169,13 +159,15 @@ const { guests, deadline } = Astro.props;
         .options-wrapper {
           display: flex;
           flex-direction: column;
-          gap: 1.6rem;
+          gap: 2rem;
 
           .option {
             display: flex;
+            align-items: center;
             gap: 1.6rem;
 
             input {
+              flex-shrink: 0;
               width: 2.4rem;
               height: 2.4rem;
               accent-color: var(--black);
@@ -188,9 +180,9 @@ const { guests, deadline } = Astro.props;
 </style>
 
 <script>
-  import { updateGuestRSVP } from '../lib/invitations';
+  import { updateGuestMenu } from '../lib/invitations';
 
-  const form = document.getElementById('rsvp-form');
+  const form = document.getElementById('menu-selection-form');
   const formStatus = document.getElementById('form-status');
   const submitButton = form?.querySelector('button[type="submit"]');
 
@@ -212,13 +204,11 @@ const { guests, deadline } = Astro.props;
     const formData = new FormData(e.target as HTMLFormElement);
     const updates: Promise<boolean>[] = [];
 
-    // Process each guest's RSVP
+    // Process each guest's menu-selection
     for (const [key, value] of formData.entries()) {
       if (key.startsWith('guest-')) {
         const guestId = key.replace('guest-', '');
-        const rsvp = value === 'attending';
-
-        updates.push(updateGuestRSVP(guestId, rsvp));
+        updates.push(updateGuestMenu(guestId, Number(value) as 1 | 2 | 3));
       }
     }
 
@@ -227,7 +217,7 @@ const { guests, deadline } = Astro.props;
       await Promise.all(updates);
 
       // Show success message
-      formStatus.textContent = '¡Gracias por confirmar tu asistencia!';
+      formStatus.textContent = '¡Gracias por confirmar tu plato!';
       formStatus.className = 'text text--status text--success';
     } catch (error) {
       console.error('Error updating RSVPs:', error);

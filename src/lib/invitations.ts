@@ -36,22 +36,32 @@ export async function getInvitation(invitationId: string): Promise<Invitation | 
   };
 }
 
-export async function updateGuestRSVP(
-  guestId: string,
-  rsvp: boolean
-): Promise<boolean> {
+export async function updateGuestRSVP(guestId: string, rsvp: boolean): Promise<boolean> {
   const updateData: Database['public']['Tables']['guests']['Update'] = {
     rsvp,
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
   };
 
-  const { error } = await supabase
-    .from('guests')
-    .update(updateData)
-    .eq('id', guestId);
+  const { error } = await supabase.from('guests').update(updateData).eq('id', guestId);
 
   if (error) {
     console.error('Error updating guest RSVP:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function updateGuestMenu(guestId: string, menu: 1 | 2 | 3): Promise<boolean> {
+  const updateData: Database['public']['Tables']['guests']['Update'] = {
+    menu,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabase.from('guests').update(updateData).eq('id', guestId);
+
+  if (error) {
+    console.error('Error updating guest menu:', error);
     return false;
   }
 
@@ -66,7 +76,7 @@ export async function createInvitation(
 ): Promise<string | null> {
   const { data: invitation, error: invitationError } = await supabase
     .from('invitations')
-    .insert({ 
+    .insert({
       title,
       is_special_invitation: isSpecialInvitation,
       deadline: deadline,
@@ -96,4 +106,4 @@ export async function createInvitation(
   }
 
   return invitation.id;
-} 
+}

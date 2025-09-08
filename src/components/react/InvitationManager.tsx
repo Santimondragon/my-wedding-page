@@ -20,7 +20,8 @@ import {
   Sparkles,
   Eye,
   EyeOff,
-  XCircle
+  XCircle,
+  StarIcon,
 } from 'lucide-react';
 import { getSupabase } from '../../lib/supabase';
 import StatCard from './StatCard';
@@ -78,10 +79,10 @@ const InvitationManager: React.FC<Props> = ({ initialInvitations, initialStats }
   };
 
   const filteredInvitations = useMemo(() => {
-    return invitations.filter(invitation => {
+    return invitations.filter((invitation) => {
       const matchesSearch =
         invitation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invitation.guests.some(guest =>
+        invitation.guests.some((guest) =>
           guest.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
@@ -100,8 +101,8 @@ const InvitationManager: React.FC<Props> = ({ initialInvitations, initialStats }
 
     const guestNames = formData.guestNames
       .split('\n')
-      .map(name => name.trim())
-      .filter(name => name);
+      .map((name) => name.trim())
+      .filter((name) => name);
 
     if (guestNames.length === 0) {
       showToast('Please enter at least one guest name', 'error');
@@ -127,7 +128,7 @@ const InvitationManager: React.FC<Props> = ({ initialInvitations, initialStats }
       const { data: guests, error: guestsError } = await supabase
         .from('guests')
         .insert(
-          guestNames.map(name => ({
+          guestNames.map((name) => ({
             invitation_id: invitation.id,
             name,
           }))
@@ -140,10 +141,10 @@ const InvitationManager: React.FC<Props> = ({ initialInvitations, initialStats }
       }
 
       const newInvitation = { ...invitation, guests: guests || [] };
-      setInvitations(prev => [newInvitation, ...prev]);
+      setInvitations((prev) => [newInvitation, ...prev]);
 
       // Update stats
-      setStats(prev => ({
+      setStats((prev) => ({
         ...prev,
         totalInvitations: prev.totalInvitations + 1,
         totalGuests: prev.totalGuests + guestNames.length,
@@ -161,10 +162,15 @@ const InvitationManager: React.FC<Props> = ({ initialInvitations, initialStats }
   };
 
   const handleCopyLink = async (invitationId: string) => {
-    const link = `Cada vez falta menos para el gran día ✨
-¡Esperamos contar con su compañía para celebrarlo juntos! 💌
+    const link = `*¡Elige tu plato!* 🥂✨
 
-https://www.auraysantisecasan.com/${invitationId}`;
+Para que todo sea perfecto, queremos pedirles que elijan el plato que quieran. *¡Es muy importante que lo hagan antes del 20 de septiembre!*
+
+https://www.auraysantisecasan.com/${invitationId}
+
+_Si tienen alguna alergia o restricción alimenticia, por favor, dejame saber por este medio para que tenerlo en cuenta._
+
+¡Gracias por ser parte de nuestra celebración!`;
 
     try {
       await navigator.clipboard.writeText(link);
@@ -185,15 +191,17 @@ https://www.auraysantisecasan.com/${invitationId}`;
 
       if (error) throw error;
 
-      const deletedInvitation = invitations.find(inv => inv.id === invitationId);
+      const deletedInvitation = invitations.find((inv) => inv.id === invitationId);
       if (deletedInvitation) {
-        setInvitations(prev => prev.filter(inv => inv.id !== invitationId));
-        setStats(prev => ({
+        setInvitations((prev) => prev.filter((inv) => inv.id !== invitationId));
+        setStats((prev) => ({
           ...prev,
           totalInvitations: prev.totalInvitations - 1,
           totalGuests: prev.totalGuests - deletedInvitation.guests.length,
-          confirmedGuests: prev.confirmedGuests - deletedInvitation.guests.filter(g => g.rsvp === true).length,
-          pendingGuests: prev.pendingGuests - deletedInvitation.guests.filter(g => g.rsvp === null).length,
+          confirmedGuests:
+            prev.confirmedGuests - deletedInvitation.guests.filter((g) => g.rsvp === true).length,
+          pendingGuests:
+            prev.pendingGuests - deletedInvitation.guests.filter((g) => g.rsvp === null).length,
         }));
       }
 
@@ -214,10 +222,8 @@ https://www.auraysantisecasan.com/${invitationId}`;
 
       if (error) throw error;
 
-      setInvitations(prev =>
-        prev.map(inv =>
-          inv.id === invitationId ? { ...inv, is_sent: true } : inv
-        )
+      setInvitations((prev) =>
+        prev.map((inv) => (inv.id === invitationId ? { ...inv, is_sent: true } : inv))
       );
 
       showToast('Invitation marked as sent!');
@@ -227,8 +233,29 @@ https://www.auraysantisecasan.com/${invitationId}`;
     }
   };
 
+  const handleMakeSpecial = async (invitationId: string) => {
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('invitations')
+        .update({ is_special_invitation: true })
+        .eq('id', invitationId);
+
+      if (error) throw error;
+
+      setInvitations((prev) =>
+        prev.map((inv) => (inv.id === invitationId ? { ...inv, is_special_invitation: true } : inv))
+      );
+
+      showToast('Invitation marked as special!');
+    } catch (error) {
+      console.error('Error updating invitation:', error);
+      showToast('Error updating invitation status', 'error');
+    }
+  };
+
   const toggleCardExpansion = (invitationId: string) => {
-    setExpandedCards(prev => {
+    setExpandedCards((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(invitationId)) {
         newSet.delete(invitationId);
@@ -272,7 +299,7 @@ https://www.auraysantisecasan.com/${invitationId}`;
             value={stats.totalGuests}
             label="Total Guests"
             color="blue"
-            href='/admin/guests'
+            href="/admin/guests"
           />
           <StatCard
             icon={CheckCircle}
@@ -280,12 +307,7 @@ https://www.auraysantisecasan.com/${invitationId}`;
             label="Confirmed"
             color="emerald"
           />
-          <StatCard
-            icon={Clock}
-            value={stats.pendingGuests}
-            label="Declined"
-            color="red"
-          />
+          <StatCard icon={Clock} value={stats.pendingGuests} label="Declined" color="red" />
         </div>
 
         {/* Main Content */}
@@ -314,7 +336,7 @@ https://www.auraysantisecasan.com/${invitationId}`;
                     type="text"
                     required
                     value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     placeholder="e.g., Smith Family"
                   />
@@ -323,13 +345,17 @@ https://www.auraysantisecasan.com/${invitationId}`;
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-3">
                     Guest Names <span className="text-red-500">*</span>
-                    <span className="text-xs text-gray-500 font-normal ml-2">One name per line</span>
+                    <span className="text-xs text-gray-500 font-normal ml-2">
+                      One name per line
+                    </span>
                   </label>
                   <textarea
                     required
                     rows={4}
                     value={formData.guestNames}
-                    onChange={(e) => setFormData(prev => ({ ...prev, guestNames: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, guestNames: e.target.value }))
+                    }
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
                     placeholder="John Doe"
                   />
@@ -343,7 +369,7 @@ https://www.auraysantisecasan.com/${invitationId}`;
                     type="text"
                     required
                     value={formData.deadline}
-                    onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, deadline: e.target.value }))}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     placeholder="e.g., 10 de Julio"
                   />
@@ -354,10 +380,15 @@ https://www.auraysantisecasan.com/${invitationId}`;
                     type="checkbox"
                     id="special-invitation"
                     checked={formData.isSpecial}
-                    onChange={(e) => setFormData(prev => ({ ...prev, isSpecial: e.target.checked }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, isSpecial: e.target.checked }))
+                    }
                     className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                   />
-                  <label htmlFor="special-invitation" className="flex items-center gap-2 text-sm font-medium text-gray-900 cursor-pointer">
+                  <label
+                    htmlFor="special-invitation"
+                    className="flex items-center gap-2 text-sm font-medium text-gray-900 cursor-pointer"
+                  >
                     <Star className="w-4 h-4 text-amber-500" />
                     Mark as Special Invitation
                   </label>
@@ -395,7 +426,9 @@ https://www.auraysantisecasan.com/${invitationId}`;
                     </div>
                     <div>
                       <h2 className="text-xl font-semibold text-gray-900">Existing Invitations</h2>
-                      <p className="text-sm text-gray-600">{filteredInvitations.length} invitations</p>
+                      <p className="text-sm text-gray-600">
+                        {filteredInvitations.length} invitations
+                      </p>
                     </div>
                   </div>
 
@@ -433,12 +466,13 @@ https://www.auraysantisecasan.com/${invitationId}`;
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <MailOpen className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No invitations found</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      No invitations found
+                    </h3>
                     <p className="text-gray-600">
                       {invitations.length === 0
-                        ? "Create your first invitation to get started"
-                        : "Try adjusting your search or filter criteria"
-                      }
+                        ? 'Create your first invitation to get started'
+                        : 'Try adjusting your search or filter criteria'}
                     </p>
                   </div>
                 ) : (
@@ -452,6 +486,7 @@ https://www.auraysantisecasan.com/${invitationId}`;
                         onCopyLink={() => handleCopyLink(invitation.id)}
                         onDelete={() => handleDeleteInvitation(invitation.id, invitation.title)}
                         onMarkAsSent={() => handleMarkAsSent(invitation.id)}
+                        onMarkAsSpecial={() => handleMakeSpecial(invitation.id)}
                       />
                     ))}
                   </div>
@@ -463,10 +498,13 @@ https://www.auraysantisecasan.com/${invitationId}`;
 
         {/* Toast Notification */}
         {toast && (
-          <div className={`fixed bottom-6 right-6 px-6 py-4 rounded-2xl shadow-lg text-white font-medium transition-all duration-300 z-50 ${toast.type === 'success'
-            ? 'bg-gradient-to-r from-emerald-500 to-green-500'
-            : 'bg-gradient-to-r from-red-500 to-rose-500'
-            }`}>
+          <div
+            className={`fixed bottom-6 right-6 px-6 py-4 rounded-2xl shadow-lg text-white font-medium transition-all duration-300 z-50 ${
+              toast.type === 'success'
+                ? 'bg-gradient-to-r from-emerald-500 to-green-500'
+                : 'bg-gradient-to-r from-red-500 to-rose-500'
+            }`}
+          >
             {toast.message}
           </div>
         )}
@@ -482,6 +520,7 @@ interface InvitationCardProps {
   onCopyLink: () => void;
   onDelete: () => void;
   onMarkAsSent: () => void;
+  onMarkAsSpecial: () => void;
 }
 
 const InvitationCard: React.FC<InvitationCardProps> = ({
@@ -491,6 +530,7 @@ const InvitationCard: React.FC<InvitationCardProps> = ({
   onCopyLink,
   onDelete,
   onMarkAsSent,
+  onMarkAsSpecial,
 }) => {
   return (
     <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
@@ -510,10 +550,11 @@ const InvitationCard: React.FC<InvitationCardProps> = ({
             <button
               onClick={onMarkAsSent}
               disabled={invitation.is_sent}
-              className={`p-2 rounded-xl transition-all duration-200 ${invitation.is_sent
-                ? 'bg-emerald-100 text-emerald-600 cursor-not-allowed'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+              className={`p-2 rounded-xl transition-all duration-200 ${
+                invitation.is_sent
+                  ? 'bg-emerald-100 text-emerald-600 cursor-not-allowed'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
               title={invitation.is_sent ? 'Invitation has been sent' : 'Mark as sent'}
             >
               <Send className="w-4 h-4" />
@@ -525,6 +566,19 @@ const InvitationCard: React.FC<InvitationCardProps> = ({
               title="Copy invitation link"
             >
               <Copy className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={onMarkAsSpecial}
+              disabled={invitation.is_special_invitation}
+              className={`p-2 rounded-xl transition-all duration-200 ${
+                invitation.is_special_invitation
+                  ? 'bg-orange-100 text-orange-600 cursor-not-allowed'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              title={invitation.is_special_invitation ? 'Invitation is special' : 'Mark as special'}
+            >
+              <StarIcon className="w-4 h-4" />
             </button>
 
             <button
@@ -563,14 +617,20 @@ const InvitationCard: React.FC<InvitationCardProps> = ({
               </h4>
               <div className="space-y-2">
                 {invitation.guests.map((guest) => (
-                  <div key={guest.id} className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
+                  <div
+                    key={guest.id}
+                    className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100"
+                  >
                     <div className="flex items-center gap-3">
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg ${guest.rsvp === true
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : guest.rsvp === false
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-amber-100 text-amber-700'
-                        }`}>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg ${
+                          guest.rsvp === true
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : guest.rsvp === false
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-amber-100 text-amber-700'
+                        }`}
+                      >
                         {guest.rsvp === true ? (
                           <>
                             <CheckCircle className="w-3 h-3" />

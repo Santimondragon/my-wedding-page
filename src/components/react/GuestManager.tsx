@@ -11,13 +11,15 @@ import {
   XCircle,
   Edit,
   Save,
-  X
+  X,
+  Utensils,
 } from 'lucide-react';
 import { getSupabase } from '../../lib/supabase';
 import Toast from './Toast';
 import StatCard from './StatCard';
 import SearchInput from './SearchInput';
 import FilterButton from './FilterButton';
+import { dishes } from '@/constants';
 
 interface Guest {
   id: string;
@@ -66,8 +68,9 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
   };
 
   const filteredGuests = useMemo(() => {
-    return guests.filter(guest => {
-      const matchesSearch = guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    return guests.filter((guest) => {
+      const matchesSearch =
+        guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         guest.invitation?.title.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesFilter =
@@ -90,15 +93,15 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
 
       if (error) throw error;
 
-      setGuests(prev =>
-        prev.map(guest =>
+      setGuests((prev) =>
+        prev.map((guest) =>
           guest.id === guestId ? { ...guest, rsvp, updated_at: new Date().toISOString() } : guest
         )
       );
 
       // Update stats
       const updatedStats = { ...stats };
-      const oldGuest = guests.find(g => g.id === guestId);
+      const oldGuest = guests.find((g) => g.id === guestId);
       if (oldGuest) {
         if (oldGuest.rsvp === true) updatedStats.confirmedGuests--;
         else if (oldGuest.rsvp === false) updatedStats.declinedGuests--;
@@ -118,7 +121,9 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
   };
 
   const handleDeleteGuest = async (guestId: string, guestName: string) => {
-    if (!confirm(`Are you sure you want to delete "${guestName}"?\n\nThis action cannot be undone.`)) {
+    if (
+      !confirm(`Are you sure you want to delete "${guestName}"?\n\nThis action cannot be undone.`)
+    ) {
       return;
     }
 
@@ -128,9 +133,9 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
 
       if (error) throw error;
 
-      const deletedGuest = guests.find(g => g.id === guestId);
+      const deletedGuest = guests.find((g) => g.id === guestId);
       if (deletedGuest) {
-        setGuests(prev => prev.filter(g => g.id !== guestId));
+        setGuests((prev) => prev.filter((g) => g.id !== guestId));
 
         // Update stats
         const updatedStats = { ...stats, totalGuests: stats.totalGuests - 1 };
@@ -158,9 +163,11 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
 
       if (error) throw error;
 
-      setGuests(prev =>
-        prev.map(guest =>
-          guest.id === guestId ? { ...guest, name: editName, updated_at: new Date().toISOString() } : guest
+      setGuests((prev) =>
+        prev.map((guest) =>
+          guest.id === guestId
+            ? { ...guest, name: editName, updated_at: new Date().toISOString() }
+            : guest
         )
       );
 
@@ -209,30 +216,15 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
 
         {/* Statistics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatCard
-            icon={Users}
-            value={stats.totalGuests}
-            label="Total Guests"
-            color="gray"
-          />
+          <StatCard icon={Users} value={stats.totalGuests} label="Total Guests" color="gray" />
           <StatCard
             icon={CheckCircle}
             value={stats.confirmedGuests}
             label="Confirmed"
             color="emerald"
           />
-          <StatCard
-            icon={Clock}
-            value={stats.pendingGuests}
-            label="Pending"
-            color="amber"
-          />
-          <StatCard
-            icon={XCircle}
-            value={stats.declinedGuests}
-            label="Declined"
-            color="red"
-          />
+          <StatCard icon={Clock} value={stats.pendingGuests} label="Pending" color="amber" />
+          <StatCard icon={XCircle} value={stats.declinedGuests} label="Declined" color="red" />
         </div>
 
         {/* Search and Filter */}
@@ -281,9 +273,8 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No guests found</h3>
                 <p className="text-gray-600">
                   {guests.length === 0
-                    ? "No guests have been added yet"
-                    : "Try adjusting your search or filter criteria"
-                  }
+                    ? 'No guests have been added yet'
+                    : 'Try adjusting your search or filter criteria'}
                 </p>
               </div>
             ) : (
@@ -308,11 +299,7 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
         </div>
 
         {/* Toast Notification */}
-        <Toast
-          message={toast?.message || ''}
-          type={toast?.type || 'success'}
-          isVisible={!!toast}
-        />
+        <Toast message={toast?.message || ''} type={toast?.type || 'success'} isVisible={!!toast} />
       </div>
     </div>
   );
@@ -382,30 +369,33 @@ const GuestCard: React.FC<GuestCardProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onUpdateRSVP(guest.id, true)}
-              className={`p-2 rounded-xl transition-all duration-200 ${guest.rsvp === true
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-gray-100 text-gray-600 hover:bg-emerald-50'
-                }`}
+              className={`p-2 rounded-xl transition-all duration-200 ${
+                guest.rsvp === true
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-gray-100 text-gray-600 hover:bg-emerald-50'
+              }`}
               title="Mark as confirmed"
             >
               <CheckCircle className="w-4 h-4" />
             </button>
             <button
               onClick={() => onUpdateRSVP(guest.id, null)}
-              className={`p-2 rounded-xl transition-all duration-200 ${guest.rsvp === null
-                ? 'bg-amber-100 text-amber-700'
-                : 'bg-gray-100 text-gray-600 hover:bg-amber-50'
-                }`}
+              className={`p-2 rounded-xl transition-all duration-200 ${
+                guest.rsvp === null
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'bg-gray-100 text-gray-600 hover:bg-amber-50'
+              }`}
               title="Mark as pending"
             >
               <Clock className="w-4 h-4" />
             </button>
             <button
               onClick={() => onUpdateRSVP(guest.id, false)}
-              className={`p-2 rounded-xl transition-all duration-200 ${guest.rsvp === false
-                ? 'bg-red-100 text-red-700'
-                : 'bg-gray-100 text-gray-600 hover:bg-red-50'
-                }`}
+              className={`p-2 rounded-xl transition-all duration-200 ${
+                guest.rsvp === false
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-gray-100 text-gray-600 hover:bg-red-50'
+              }`}
               title="Mark as declined"
             >
               <XCircle className="w-4 h-4" />
@@ -428,14 +418,17 @@ const GuestCard: React.FC<GuestCardProps> = ({
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between gap-4 text-sm text-gray-600">
             <span className="flex items-center gap-1">
-              <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg ${guest.rsvp === true
-                ? 'bg-emerald-100 text-emerald-700'
-                : guest.rsvp === false
-                  ? 'bg-red-100 text-red-700'
-                  : 'bg-amber-100 text-amber-700'
-                }`}>
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg ${
+                  guest.rsvp === true
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : guest.rsvp === false
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-amber-100 text-amber-700'
+                }`}
+              >
                 {guest.rsvp === true ? (
                   <>
                     <CheckCircle className="w-3 h-3" />
@@ -454,8 +447,16 @@ const GuestCard: React.FC<GuestCardProps> = ({
                 )}
               </span>
             </span>
+            {guest.menu && (
+              <span className="flex items-center gap-1">
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg bg-orange-100 text-orange-700">
+                  <Utensils className="w-3 h-3" />
+                  {dishes[guest.menu].dish}
+                </span>
+              </span>
+            )}
             {guest.invitation && (
-              <span className="text-gray-500">
+              <span className="flex-1 text-gray-500 text-right">
                 Invitation: {guest.invitation.title}
               </span>
             )}
