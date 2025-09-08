@@ -1,0 +1,126 @@
+---
+import '../../styles/custom.css';
+
+import Celebrate from '../../components/Celebrate.astro';
+import Dresscode from '../../components/Dresscode.astro';
+import Family from '../../components/Family.astro';
+import Footer from '../../components/Footer.astro';
+import Gallery from '../../components/Gallery.astro';
+import HeaderHero from '../../components/HeaderHero.astro';
+import Itinerary from '../../components/Itinerary.astro';
+import Location from '../../components/Location.astro';
+import MenuSelection from '../../components/MenuSelection.astro';
+import RSVP from '../../components/RSVP.astro';
+import SpecialInvitation from '../../components/SpecialInvitation.astro';
+
+import { getSupabase } from '../../lib/supabase';
+import type { Database } from '@/lib/database.types';
+import Rain from '@/components/Rain.astro';
+
+const supabase = getSupabase();
+
+const { invitation_id } = Astro.params;
+
+// Get invitation with its guests
+const { data: invitation } = await supabase
+  .from('invitations')
+  .select(
+    `
+    id,
+    custom_id,
+    title,
+    is_special_invitation,
+    deadline,
+    guests (
+      id,
+      name,
+      rsvp,
+      menu
+    )
+  `
+  )
+  .eq('custom_id', invitation_id)
+  .single();
+
+// If no invitation found, redirect to 404
+if (!invitation) {
+  return Astro.redirect('/404');
+}
+
+// Sort guests by name
+const guests = (invitation.guests as Database['public']['Tables']['guests']['Row'][]) || [];
+
+// const title = invitation.title;
+const isSpecialInvitation = invitation.is_special_invitation;
+const deadline = invitation.deadline;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <!-- Twitter -->
+    <meta name="twitter:title" content="¡Elige tu plato!" />
+    <meta name="twitter:description" content="10.10.2025 - Medellín, Colombia" />
+    <meta name="twitter:image" content="https://www.auraysantisecasan.com/preview-invitation.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Facebook -->
+    <meta property="og:title" content="Elige tu plato!" />
+    <meta property="og:description" content="10.10.2025 - Medellín, Colombia" />
+    <meta property="og:image" content="https://www.auraysantisecasan.com/preview-invitation.jpg" />
+
+    <!-- Common -->
+    <link rel="icon" type="image/svg+x" href="./favicon.svg" />
+    <title>¡Elige tu plato!</title>
+  </head>
+
+  <body>
+    <main>
+      <HeaderHero />
+      <Rain />
+      <!-- <Celebrate /> -->
+      <!-- <Family title={title} /> -->
+      <!-- <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} deadline={deadline} /> -->
+      <MenuSelection guests={guests} />
+      {isSpecialInvitation && <SpecialInvitation />}
+      <Location />
+      <Itinerary />
+      <Dresscode />
+      <Gallery />
+      <Footer />
+    </main>
+  </body>
+
+  <style>
+    body {
+      main {
+        height: 100vh;
+        width: 100%;
+        display: grid;
+        place-items: center;
+        overflow-x: hidden;
+        background-color: var(--white);
+
+        header,
+        section {
+          max-width: 56rem;
+          width: 100%;
+        }
+
+        .section-content {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 3.2rem;
+          height: 90vh;
+          width: 100%;
+          padding: 5.6rem 4rem;
+        }
+      }
+    }
+  </style>
+</html>

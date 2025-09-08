@@ -3,7 +3,7 @@
 
 @font-face {
   font-family: "Chloe";
-  src: url("./fonts/Chloe-Regular.ttf") format("truetype");
+  src: url("/fonts/Chloe-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }

@@ -1,0 +1,80 @@
+---
+import '../../styles/index.css';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { checkAuth } from '../../middleware/auth';
+import { getSupabase } from '../../lib/supabase';
+import type { Database } from '../../lib/database.types';
+import GuestManager from '../../components/react/GuestManager';
+
+const { isAuthorized } = await checkAuth(Astro);
+
+if (!isAuthorized) {
+  return Astro.redirect('/login');
+}
+
+const supabase = getSupabase();
+
+type GuestWithInvitation = Database['public']['Tables']['guests']['Row'] & {
+  invitation: Database['public']['Tables']['invitations']['Row'] | null;
+};
+
+// Get all guests with their invitation information
+const { data: guests, error } = (await supabase
+  .from('guests')
+  .select(
+    `
+    id,
+    name,
+    rsvp,
+    menu,
+    created_at,
+    updated_at,
+    invitation:invitation_id (
+      id,
+      title,
+      is_special_invitation,
+      is_sent,
+      created_at,
+      updated_at
+    )
+  `
+  )
+  .order('updated_at', { ascending: false })) as {
+  data: GuestWithInvitation[] | null;
+  error: any;
+};
+
+if (error) {
+  console.error('Error fetching guests:', error);
+  throw error;
+}
+
+// Transform guests to match the GuestManager interface
+const transformedGuests =
+  guests?.map((guest) => ({
+    id: guest.id,
+    name: guest.name,
+    rsvp: guest.rsvp,
+    menu: guest.menu,
+    created_at: guest.created_at,
+    updated_at: guest.updated_at,
+    invitation: guest.invitation,
+  })) || [];
+
+// Calculate statistics
+const totalGuests = transformedGuests.length;
+const confirmedGuests = transformedGuests.filter((g) => g.rsvp === true).length;
+const pendingGuests = transformedGuests.filter((g) => g.rsvp === null).length;
+const declinedGuests = transformedGuests.filter((g) => g.rsvp === false).length;
+
+const stats = {
+  totalGuests,
+  confirmedGuests,
+  pendingGuests,
+  declinedGuests,
+};
+---
+
+<AdminLayout title="Manage Guests">
+  <GuestManager client:load initialGuests={transformedGuests} initialStats={stats} />
+</AdminLayout>

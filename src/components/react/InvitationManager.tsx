@@ -166,7 +166,7 @@ const InvitationManager: React.FC<Props> = ({ initialInvitations, initialStats }
 
 Para que todo sea perfecto, queremos pedirles que elijan el plato que quieran. *¡Es muy importante que lo hagan antes del 20 de septiembre!*
 
-https://www.auraysantisecasan.com/${invitationId}
+https://www.auraysantisecasan.com/invitation/${invitationId}
 
 _Si tienen alguna alergia o restricción alimenticia, por favor, dejame saber por este medio para que tenerlo en cuenta._
 
@@ -483,7 +483,7 @@ _Si tienen alguna alergia o restricción alimenticia, por favor, dejame saber po
                         invitation={invitation}
                         isExpanded={expandedCards.has(invitation.id)}
                         onToggleExpansion={() => toggleCardExpansion(invitation.id)}
-                        onCopyLink={() => handleCopyLink(invitation.id)}
+                        onCopyLink={() => handleCopyLink(invitation.custom_id)}
                         onDelete={() => handleDeleteInvitation(invitation.id, invitation.title)}
                         onMarkAsSent={() => handleMarkAsSent(invitation.id)}
                         onMarkAsSpecial={() => handleMakeSpecial(invitation.id)}
