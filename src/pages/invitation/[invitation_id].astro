@@ -10,12 +10,12 @@ import HeaderHero from '../../components/HeaderHero.astro';
 import Itinerary from '../../components/Itinerary.astro';
 import Location from '../../components/Location.astro';
 import MenuSelection from '../../components/MenuSelection.astro';
+import Rain from '../../components/Rain.astro';
 import RSVP from '../../components/RSVP.astro';
 import SpecialInvitation from '../../components/SpecialInvitation.astro';
 
 import { getSupabase } from '../../lib/supabase';
-import type { Database } from '@/lib/database.types';
-import Rain from '@/components/Rain.astro';
+import type { Database } from '../../lib/database.types';
 
 const supabase = getSupabase();
 
@@ -35,7 +35,8 @@ const { data: invitation } = await supabase
       id,
       name,
       rsvp,
-      menu
+      menu,
+      is_kid_menu
     )
   `
   )

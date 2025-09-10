@@ -49,6 +49,7 @@ export interface Database {
           name: string
           rsvp: boolean | null
           menu: 1 | 2 | 3 | null
+          is_kid_menu: boolean
           created_at: string
           updated_at: string
         }
@@ -58,6 +59,7 @@ export interface Database {
           name: string
           rsvp?: boolean | null
           menu?: 1 | 2 | 3 | null
+          is_kid_menu: boolean
           created_at?: string
           updated_at?: string
         }
@@ -67,6 +69,7 @@ export interface Database {
           name?: string
           rsvp?: boolean | null
           menu?: 1 | 2 | 3 | null
+          is_kid_menu: boolean
           created_at?: string
           updated_at?: string
         }

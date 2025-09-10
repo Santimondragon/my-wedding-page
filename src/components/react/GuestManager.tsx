@@ -1,5 +1,4 @@
-// components/GuestManager.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Users,
   CheckCircle,

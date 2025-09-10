@@ -15,4 +15,21 @@ const dishes = {
   },
 };
 
-export { dishes };
+const kidsDishes = {
+  1: {
+    dish: 'Nuggets',
+    description:
+      'Nuggets con papitas.',
+  },
+  2: {
+    dish: 'Hamburguesa',
+    description: 'Hamburguesa con papitas',
+  },
+  3: {
+    dish: 'Pasta',
+    description:
+      'Pasta con pollo. Opción de pasta corta o larga con alguna salsa especial (Dejanos saber que quieres)',
+  },
+};
+
+export { dishes, kidsDishes};

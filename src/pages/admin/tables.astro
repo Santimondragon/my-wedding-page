@@ -5,6 +5,7 @@ import { checkAuth } from '../../middleware/auth';
 import { getSupabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
 import GuestManager from '../../components/react/GuestManager';
+import MenuManager from '@/components/react/MenuManager';
 
 const { isAuthorized } = await checkAuth(Astro);
 
@@ -31,14 +32,11 @@ const { data: guests, error } = (await supabase
     updated_at,
     invitation:invitation_id (
       id,
-      title,
-      is_special_invitation,
-      is_sent,
-      created_at,
-      updated_at
+      title
     )
   `
   )
+  .eq("rsvp", "TRUE")
   .order('updated_at', { ascending: false })) as {
   data: GuestWithInvitation[] | null;
   error: any;
@@ -61,20 +59,8 @@ const transformedGuests =
     invitation: guest.invitation,
   })) || [];
 
-// Calculate statistics
-const totalGuests = transformedGuests.length;
-const confirmedGuests = transformedGuests.filter((g) => g.rsvp === true).length;
-const pendingGuests = transformedGuests.filter((g) => g.rsvp === null).length;
-const declinedGuests = transformedGuests.filter((g) => g.rsvp === false).length;
-
-const stats = {
-  totalGuests,
-  confirmedGuests,
-  pendingGuests,
-  declinedGuests,
-};
 ---
 
 <AdminLayout title="Manage Guests">
-  <GuestManager client:load initialGuests={transformedGuests} initialStats={stats} />
+  <MenuManager client:load initialGuests={transformedGuests} />
 </AdminLayout>

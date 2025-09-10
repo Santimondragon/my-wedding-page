@@ -1,5 +1,4 @@
-// components/InvitationManager.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Mail,
   Users,
@@ -35,6 +34,7 @@ interface Guest {
 
 interface Invitation {
   id: string;
+  custom_id: string;
   title: string;
   created_at: string;
   updated_at: string;
@@ -606,7 +606,9 @@ const InvitationCard: React.FC<InvitationCardProps> = ({
                 Invitation Link
               </label>
               <div className="bg-gray-100 rounded-xl p-3 font-mono text-sm text-gray-700 border">
-                auraysantisecasan.com/{invitation.id}
+                <a href={`https://auraysantisecasan.com/invitation/${invitation.custom_id}`} target='_blank'>
+                  https://auraysantisecasan.com/invitation/{invitation.custom_id}
+                </a>
               </div>
             </div>
 

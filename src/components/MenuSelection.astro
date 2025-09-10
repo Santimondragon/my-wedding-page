@@ -1,7 +1,7 @@
 ---
 import Button from '../components/Button.astro';
 import type { Database } from '../lib/database.types';
-import { dishes } from '../constants';
+import { dishes, kidsDishes } from '../constants';
 
 interface Props {
   guests: Database['public']['Tables']['guests']['Row'][];
@@ -30,36 +30,40 @@ const { guests } = Astro.props;
     {
       guests
         .filter((guest) => guest.rsvp)
-        .map((guest) => (
-          <fieldset class="guest-section">
-            <legend class="heading heading--4 guest-name">{guest.name}</legend>
+        .map((guest) => {
+          const selectedDishes = guest.is_kid_menu ? kidsDishes : dishes;
 
-            {guest.menu === null ? (
-              <div class="options-wrapper">
-                {Object.entries(dishes).map(([key, value]) => (
-                  <div class="option">
-                    <input
-                      type="radio"
-                      id={`${key}-${guest.id}`}
-                      name={`guest-${guest.id}`}
-                      value={Number(key)}
-                      checked={guest.menu === Number(key)}
-                      required
-                    />
-                    <label class="text" for={`${key}-${guest.id}`}>
-                      {value.description}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <>
-                <p class="text text--italic">¡Selección confirmada!</p>
-                <p class="text">{dishes[guest.menu].description}</p>
-              </>
-            )}
-          </fieldset>
-        ))
+          return (
+            <fieldset class="guest-section">
+              <legend class="heading heading--4 guest-name">{guest.name}</legend>
+
+              {guest.menu === null ? (
+                <div class="options-wrapper">
+                  {Object.entries(selectedDishes).map(([key, value]) => (
+                    <div class="option">
+                      <input
+                        type="radio"
+                        id={`${key}-${guest.id}`}
+                        name={`guest-${guest.id}`}
+                        value={Number(key)}
+                        checked={guest.menu === Number(key)}
+                        required
+                      />
+                      <label class="text" for={`${key}-${guest.id}`}>
+                        {value.description}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <p class="text text--italic">¡Selección confirmada!</p>
+                  <p class="text">{selectedDishes[guest.menu].description}</p>
+                </>
+              )}
+            </fieldset>
+          );
+        })
     }
 
     {
