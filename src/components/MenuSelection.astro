@@ -67,12 +67,12 @@ const { guests } = Astro.props;
     }
 
     {
-      guests.every((g) => g.menu === null) && (
+      guests.some((g) => g.menu === null) && (
         <>
           <p id="form-status" class="text text--status" style="display: none;" />
           <Button
             id="submit-button"
-            text={`Confirmar Plato${guests.length > 1 ? 's' : ''}`}
+            text={`Confirmar Plato${guests.filter((g) => g.menu === null).length > 1 ? 's' : ''}`}
             color="black"
             type="submit"
           />
