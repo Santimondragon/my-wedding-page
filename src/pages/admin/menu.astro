@@ -5,7 +5,7 @@ import { checkAuth } from '../../middleware/auth';
 import { getSupabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
 import GuestManager from '../../components/react/GuestManager';
-import TableManager from '@/components/react/TableManager';
+import MenuManager from '@/components/react/MenuManager';
 
 const { isAuthorized } = await checkAuth(Astro);
 
@@ -16,13 +16,10 @@ if (!isAuthorized) {
 const supabase = getSupabase();
 
 type GuestWithInvitation = Database['public']['Tables']['guests']['Row'] & {
-  table: number | null;
-  table_seat: number | null;
-  drink: number | null;
   invitation: Database['public']['Tables']['invitations']['Row'] | null;
 };
 
-// Get all guests with their invitation information and new columns
+// Get all guests with their invitation information
 const { data: guests, error } = (await supabase
   .from('guests')
   .select(
@@ -31,9 +28,6 @@ const { data: guests, error } = (await supabase
     name,
     rsvp,
     menu,
-    drink,
-    table,
-    table_seat,
     created_at,
     updated_at,
     invitation:invitation_id (
@@ -42,8 +36,8 @@ const { data: guests, error } = (await supabase
     )
   `
   )
-  .order('table', { ascending: true })
-  .order('table_seat', { ascending: true })) as {
+  .eq("rsvp", "TRUE")
+  .order('updated_at', { ascending: false })) as {
   data: GuestWithInvitation[] | null;
   error: any;
 };
@@ -53,16 +47,13 @@ if (error) {
   throw error;
 }
 
-// Transform guests to match the TableManager interface
+// Transform guests to match the GuestManager interface
 const transformedGuests =
   guests?.map((guest) => ({
     id: guest.id,
     name: guest.name,
     rsvp: guest.rsvp,
     menu: guest.menu,
-    drink: guest.drink,
-    table: guest.table,
-    table_seat: guest.table_seat,
     created_at: guest.created_at,
     updated_at: guest.updated_at,
     invitation: guest.invitation,
@@ -70,6 +61,6 @@ const transformedGuests =
 
 ---
 
-<AdminLayout title="Table Assignments">
-  <TableManager client:load initialGuests={transformedGuests} />
+<AdminLayout title="Manage Guests">
+  <MenuManager client:load initialGuests={transformedGuests} />
 </AdminLayout>

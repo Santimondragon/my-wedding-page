@@ -79,9 +79,9 @@ const deadline = invitation.deadline;
     <main>
       <HeaderHero />
       <Rain />
-      <!-- <Celebrate /> -->
-      <!-- <Family title={title} /> -->
-      <!-- <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} deadline={deadline} /> -->
+      <Celebrate />
+      <Family title={invitation.title} />
+      <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} deadline={deadline} />
       <MenuSelection guests={guests} />
       {isSpecialInvitation && <SpecialInvitation />}
       <Location />

@@ -269,47 +269,6 @@ _Si tienen alguna alergia o restricción alimenticia, por favor, dejame saber po
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg">
-              <MailOpen className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                Invitation Management
-              </h1>
-            </div>
-          </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Manage wedding invitations and track RSVPs with elegance and precision
-          </p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatCard
-            icon={Mail}
-            value={stats.totalInvitations}
-            label="Total Invitations"
-            color="gray"
-          />
-          <StatCard
-            icon={Users}
-            value={stats.totalGuests}
-            label="Total Guests"
-            color="blue"
-            href="/admin/guests"
-          />
-          <StatCard
-            icon={CheckCircle}
-            value={stats.confirmedGuests}
-            label="Confirmed"
-            color="emerald"
-          />
-          <StatCard icon={Clock} value={stats.pendingGuests} label="Declined" color="red" />
-        </div>
-
         {/* Main Content */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Create Invitation Form */}

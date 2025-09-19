@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { Clock, Beef, Ham, Drumstick } from 'lucide-react';
-import { dishes } from '@/constants';
+import { drinks } from '@/constants';
 
 interface Guest {
   id: string;
   name: string;
   rsvp: boolean | null;
-  menu?: 1 | 2 | 3 | null;
+  drink?: 1 | 2 | 3 | 4 | null;
   updated_at?: string;
   invitation?: {
     id: string;
@@ -20,7 +20,7 @@ interface Props {
 
 type FilterType = 'all' | 'confirmed' | 'pending' | 'declined';
 
-const MenuManager: React.FC<Props> = ({ initialGuests }) => {
+const DrinkManager: React.FC<Props> = ({ initialGuests }) => {
   const [guests, setGuests] = useState<Guest[]>(initialGuests);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
@@ -52,25 +52,31 @@ const MenuManager: React.FC<Props> = ({ initialGuests }) => {
       key: 'pending',
       title: 'Pending',
       icon: <Clock className="w-5 h-5 text-amber-600" />,
-      guests: filteredGuests.filter((g) => g.rsvp && !g.menu),
+      guests: filteredGuests.filter((g) => g.rsvp && !g.drink),
     },
     {
       key: '1',
-      title: dishes[1].dish,
-      icon: <Beef className="w-5 h-5 text-orange-600" />,
-      guests: filteredGuests.filter((g) => g.menu === 1),
+      title: drinks[1].drink,
+      icon: React.createElement(drinks[1].icon, { className: "w-5 h-5 text-orange-600" }),
+      guests: filteredGuests.filter((g) => g.drink === 1),
     },
     {
       key: '2',
-      title: dishes[2].dish,
-      icon: <Ham className="w-5 h-5 text-pink-600" />,
-      guests: filteredGuests.filter((g) => g.menu === 2),
+      title: drinks[2].drink,
+      icon: React.createElement(drinks[2].icon, { className: "w-5 h-5 text-pink-600" }),
+      guests: filteredGuests.filter((g) => g.drink === 2),
     },
     {
       key: '3',
-      title: dishes[3].dish,
-      icon: <Drumstick className="w-5 h-5 text-green-600" />,
-      guests: filteredGuests.filter((g) => g.menu === 3),
+      title: drinks[3].drink,
+      icon: React.createElement(drinks[3].icon, { className: "w-5 h-5 text-green-600" }),
+      guests: filteredGuests.filter((g) => g.drink === 3),
+    },
+    {
+      key: '4',
+      title: drinks[4].drink,
+      icon: React.createElement(drinks[4].icon, { className: "w-5 h-5 text-green-600" }),
+      guests: filteredGuests.filter((g) => g.drink === 4),
     },
   ];
 
@@ -78,7 +84,7 @@ const MenuManager: React.FC<Props> = ({ initialGuests }) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto p-8">
         <div className="bg-white rounded-2xl border p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {sections.map((section) => (
               <div key={section.key}>
                 <h3 className="flex items-center gap-2 font-semibold text-gray-900 mb-4">
@@ -106,4 +112,4 @@ const MenuManager: React.FC<Props> = ({ initialGuests }) => {
   );
 };
 
-export default MenuManager;
+export default DrinkManager;

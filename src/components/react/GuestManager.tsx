@@ -18,13 +18,16 @@ import Toast from './Toast';
 import StatCard from './StatCard';
 import SearchInput from './SearchInput';
 import FilterButton from './FilterButton';
-import { dishes } from '@/constants';
+import { dishes, drinks } from '@/constants';
 
 interface Guest {
   id: string;
   name: string;
   rsvp: boolean | null;
   menu?: 1 | 2 | 3 | null;
+  drink?: number | null;
+  table?: number | null;
+  table_seat?: number | null;
   created_at?: string;
   updated_at?: string;
   invitation?: {
@@ -60,6 +63,8 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
   const [editingGuest, setEditingGuest] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  // Track local changes for table, seat, drink per guest
+  const [localAssignments, setLocalAssignments] = useState<Record<string, { table?: number|null, table_seat?: number|null, drink?: number|null }>>({});
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
@@ -193,40 +198,15 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
     setFilterType(filter);
   };
 
+  // Table and seat options
+  const tableOptions = Array.from({ length: 9 }, (_, i) => i + 1);
+  const seatOptions = Array.from({ length: 12 }, (_, i) => i + 1);
+  const drinkOptions = Object.entries(drinks);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg">
-              <Users className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                Guest Management
-              </h1>
-            </div>
-          </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Manage individual guests and track their RSVPs with precision
-          </p>
-        </div>
-
-        {/* Statistics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatCard icon={Users} value={stats.totalGuests} label="Total Guests" color="gray" />
-          <StatCard
-            icon={CheckCircle}
-            value={stats.confirmedGuests}
-            label="Confirmed"
-            color="emerald"
-          />
-          <StatCard icon={Clock} value={stats.pendingGuests} label="Pending" color="amber" />
-          <StatCard icon={XCircle} value={stats.declinedGuests} label="Declined" color="red" />
-        </div>
-
-        {/* Search and Filter */}
+        
         <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
@@ -278,20 +258,68 @@ const GuestManager: React.FC<Props> = ({ initialGuests, initialStats }) => {
               </div>
             ) : (
               <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-                {filteredGuests.map((guest) => (
-                  <GuestCard
-                    key={guest.id}
-                    guest={guest}
-                    isEditing={editingGuest === guest.id}
-                    editName={editName}
-                    onEditNameChange={setEditName}
-                    onStartEdit={() => startEditing(guest)}
-                    onSaveEdit={() => handleEditGuest(guest.id)}
-                    onCancelEdit={cancelEditing}
-                    onUpdateRSVP={handleUpdateRSVP}
-                    onDelete={() => handleDeleteGuest(guest.id, guest.name)}
-                  />
-                ))}
+                {filteredGuests.map((guest) => {
+                  const local = localAssignments[guest.id] || {};
+                  const hasUnsaved =
+                    local.table !== undefined && local.table !== guest.table ||
+                    local.table_seat !== undefined && local.table_seat !== guest.table_seat ||
+                    local.drink !== undefined && local.drink !== guest.drink;
+                  return (
+                    <GuestCard
+                      key={guest.id}
+                      guest={guest}
+                      isEditing={editingGuest === guest.id}
+                      editName={editName}
+                      onEditNameChange={setEditName}
+                      onStartEdit={() => startEditing(guest)}
+                      onSaveEdit={() => handleEditGuest(guest.id)}
+                      onCancelEdit={cancelEditing}
+                      onUpdateRSVP={handleUpdateRSVP}
+                      onDelete={() => handleDeleteGuest(guest.id, guest.name)}
+                      tableOptions={tableOptions}
+                      seatOptions={seatOptions}
+                      drinkOptions={drinkOptions}
+                      localTable={local.table ?? guest.table ?? ''}
+                      localSeat={local.table_seat ?? guest.table_seat ?? ''}
+                      localDrink={local.drink ?? guest.drink ?? ''}
+                      onUpdateTable={(guestId, table) => {
+                        setLocalAssignments(prev => ({
+                          ...prev,
+                          [guestId]: { ...prev[guestId], table }
+                        }));
+                      }}
+                      onUpdateSeat={(guestId, table_seat) => {
+                        setLocalAssignments(prev => ({
+                          ...prev,
+                          [guestId]: { ...prev[guestId], table_seat }
+                        }));
+                      }}
+                      onUpdateDrink={(guestId, drink) => {
+                        setLocalAssignments(prev => ({
+                          ...prev,
+                          [guestId]: { ...prev[guestId], drink }
+                        }));
+                      }}
+                      hasUnsaved={hasUnsaved}
+                      onSaveAssignments={async (guestId) => {
+                        const update = localAssignments[guestId];
+                        if (!update) return;
+                        const supabase = getSupabase();
+                        const { error } = await supabase.from('guests').update(update).eq('id', guestId);
+                        if (!error) {
+                          setGuests(prev => prev.map(g => g.id === guestId ? { ...g, ...update } : g));
+                          setLocalAssignments(prev => {
+                            const { [guestId]: _, ...rest } = prev;
+                            return rest;
+                          });
+                          showToast('Assignments saved!');
+                        } else {
+                          showToast('Error saving assignments', 'error');
+                        }
+                      }}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
@@ -314,6 +342,17 @@ interface GuestCardProps {
   onCancelEdit: () => void;
   onUpdateRSVP: (guestId: string, rsvp: boolean | null) => void;
   onDelete: () => void;
+  tableOptions: number[];
+  seatOptions: number[];
+  drinkOptions: [string, any][];
+  localTable: number | '';
+  localSeat: number | '';
+  localDrink: number | '';
+  onUpdateTable: (guestId: string, table: number | null) => void;
+  onUpdateSeat: (guestId: string, table_seat: number | null) => void;
+  onUpdateDrink: (guestId: string, drink: number | null) => void;
+  hasUnsaved: boolean;
+  onSaveAssignments: (guestId: string) => void;
 }
 
 const GuestCard: React.FC<GuestCardProps> = ({
@@ -326,6 +365,17 @@ const GuestCard: React.FC<GuestCardProps> = ({
   onCancelEdit,
   onUpdateRSVP,
   onDelete,
+  tableOptions,
+  seatOptions,
+  drinkOptions,
+  localTable,
+  localSeat,
+  localDrink,
+  onUpdateTable,
+  onUpdateSeat,
+  onUpdateDrink,
+  hasUnsaved,
+  onSaveAssignments,
 }) => {
   return (
     <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
@@ -417,6 +467,57 @@ const GuestCard: React.FC<GuestCardProps> = ({
         </div>
 
         <div className="space-y-3">
+          {/* Table, Seat, Drink Assignment */}
+          <div className="flex flex-wrap gap-4 items-center text-sm">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Table</label>
+              <select
+                className="px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={localTable}
+                onChange={e => onUpdateTable(guest.id, e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">-</option>
+                {tableOptions.map(num => (
+                  <option key={num} value={num}>{num}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Seat</label>
+              <select
+                className="px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={localSeat}
+                onChange={e => onUpdateSeat(guest.id, e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">-</option>
+                {seatOptions.map(num => (
+                  <option key={num} value={num}>{num}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Drink</label>
+              <select
+                className="px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={localDrink}
+                onChange={e => onUpdateDrink(guest.id, e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">-</option>
+                {drinkOptions.map(([key, val]) => (
+                  <option key={key} value={key}>{val.drink}</option>
+                ))}
+              </select>
+            </div>
+            {hasUnsaved && (
+              <button
+                className="ml-2 px-3 py-1 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-all duration-200"
+                onClick={() => onSaveAssignments(guest.id)}
+                type="button"
+              >
+                Save
+              </button>
+            )}
+          </div>
           <div className="flex items-center justify-between gap-4 text-sm text-gray-600">
             <span className="flex items-center gap-1">
               <span
