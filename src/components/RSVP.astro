@@ -1,6 +1,7 @@
 ---
 import Button from '../components/Button.astro';
 import type { Database } from '../lib/database.types';
+import Rain from './Rain.astro';
 
 interface Props {
   guests: Database['public']['Tables']['guests']['Row'][];
@@ -13,8 +14,8 @@ const { guests, deadline } = Astro.props;
 
 <section class="rsvp section-content">
   <div class="rsvp__content">
-    <h2 class="heading heading--section">RSVP</h2>
-    <p class="text">Confirmar asistencia antes del {deadline}</p>
+    <h2 class="heading heading--section">Confirmar Asistencia</h2>
+    <!-- <p class="text">Confirmar asistencia antes del {deadline}</p> -->
   </div>
 
   <form id="rsvp-form" class="rsvp-form">
@@ -90,6 +91,7 @@ const { guests, deadline } = Astro.props;
       )
     }
   </form>
+  <Rain />
 </section>
 
 <style>
@@ -120,7 +122,6 @@ const { guests, deadline } = Astro.props;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      margin-top: 3.2rem;
       list-style: none;
       width: 100%;
 

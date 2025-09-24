@@ -51,7 +51,7 @@ if (!invitation) {
 // Sort guests by name
 const guests = (invitation.guests as Database['public']['Tables']['guests']['Row'][]) || [];
 
-// const title = invitation.title;
+const title = invitation.title;
 const isSpecialInvitation = invitation.is_special_invitation;
 const deadline = invitation.deadline;
 ---
@@ -62,29 +62,28 @@ const deadline = invitation.deadline;
     <meta name="viewport" content="width=device-width" />
 
     <!-- Twitter -->
-    <meta name="twitter:title" content="¡Elige tu plato!" />
+    <meta name="twitter:title" content={`Invitación ${title}`} />
     <meta name="twitter:description" content="10.10.2025 - Medellín, Colombia" />
     <meta name="twitter:image" content="https://www.auraysantisecasan.com/preview-invitation.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <!-- Facebook -->
-    <meta property="og:title" content="Elige tu plato!" />
+    <meta property="og:title" content={`Invitación ${title}`} />
     <meta property="og:description" content="10.10.2025 - Medellín, Colombia" />
     <meta property="og:image" content="https://www.auraysantisecasan.com/preview-invitation.jpg" />
 
     <!-- Common -->
     <link rel="icon" type="image/svg+x" href="./favicon.svg" />
-    <title>¡Elige tu plato!</title>
+    <title>Invitación {title}</title>
   </head>
 
   <body>
     <main>
       <HeaderHero />
-      <Rain />
-      <!-- <Celebrate /> -->
-      <!-- <Family title={title} /> -->
-      <!-- <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} deadline={deadline} /> -->
-      <MenuSelection guests={guests} />
+      <Celebrate />
+      <Family title={title} />
+      <RSVP guests={guests} isSpecialInvitation={isSpecialInvitation} deadline={deadline} />
+      <!-- <MenuSelection guests={guests} /> -->
       {isSpecialInvitation && <SpecialInvitation />}
       <Location />
       <Itinerary />
